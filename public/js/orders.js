@@ -7,14 +7,30 @@ function loadBuyerOrders() {
     const user = checkAccess("BUYER");
     if (!user) return;
 
+    const container = document.getElementById("buyerOrdersContainer");
+    if (container) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:3rem;">
+                <div class="spinner"></div>
+                <p style="color:#616161; margin-top:1rem;">Loading your orders...</p>
+            </div>
+        `;
+    }
+
     fetch(`/api/orders/buyer?buyerId=${user.id}`)
         .then(res => res.json())
         .then(data => {
-            const container = document.getElementById("buyerOrdersContainer");
             if (!container) return;
 
             if (!data.success || !data.data || data.data.length === 0) {
-                container.innerHTML = `<p style="text-align: center; font-size: 1.1rem; color: #616161;">No orders found.</p>`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 3rem;">📦</div>
+                        <h3>No orders yet</h3>
+                        <p>Browse the market and place your first order!</p>
+                        <a href="products.html" class="btn btn-primary" style="margin-top:1rem;">🛒 Browse Products</a>
+                    </div>
+                `;
                 return;
             }
 
@@ -36,30 +52,29 @@ function loadBuyerOrders() {
 
             data.data.forEach(o => {
                 let badgeClass = "badge-pending";
-                if (o.orderStatus === "Accepted") badgeClass = "badge-accepted";
-                if (o.orderStatus === "Rejected") badgeClass = "badge-rejected";
-                if (o.orderStatus === "Completed") badgeClass = "badge-completed";
+                let statusIcon = "⏳";
+                if (o.orderStatus === "Accepted") { badgeClass = "badge-accepted"; statusIcon = "✅"; }
+                if (o.orderStatus === "Rejected") { badgeClass = "badge-rejected"; statusIcon = "❌"; }
+                if (o.orderStatus === "Completed") { badgeClass = "badge-completed"; statusIcon = "🎉"; }
 
                 html += `
                     <tr>
-                        <td>#${o.id}</td>
-                        <td><strong>${escapeHtml(o.productName)}</strong></td>
+                        <td><strong>#${o.id}</strong></td>
+                        <td><strong>${escapeHtml(toTitleCase(o.productName))}</strong></td>
                         <td>${o.quantity}</td>
-                        <td>₹${o.totalAmount.toFixed(2)}</td>
-                        <td>${escapeHtml(o.orderDate)}</td>
-                        <td><span class="badge ${badgeClass}">${escapeHtml(o.orderStatus)}</span></td>
+                        <td><strong>₹${o.totalAmount.toFixed(2)}</strong></td>
+                        <td style="font-size:0.9rem; color:#616161;">${escapeHtml(o.orderDate)}</td>
+                        <td><span class="badge ${badgeClass}">${statusIcon} ${escapeHtml(o.orderStatus)}</span></td>
                     </tr>
                 `;
             });
 
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            html += `</tbody></table></div>`;
             container.innerHTML = html;
         })
-        .catch(err => console.error("Error loading buyer orders:", err));
+        .catch(err => {
+            if (container) container.innerHTML = `<p style="text-align:center; color:#B71C1C;">⚠️ Error loading orders.</p>`;
+        });
 }
 
 // Load Farmer Received Orders
@@ -67,14 +82,29 @@ function loadFarmerOrders() {
     const user = checkAccess("FARMER");
     if (!user) return;
 
+    const container = document.getElementById("farmerOrdersContainer");
+    if (container) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:3rem;">
+                <div class="spinner"></div>
+                <p style="color:#616161; margin-top:1rem;">Loading received orders...</p>
+            </div>
+        `;
+    }
+
     fetch(`/api/orders/farmer?farmerId=${user.id}`)
         .then(res => res.json())
         .then(data => {
-            const container = document.getElementById("farmerOrdersContainer");
             if (!container) return;
 
             if (!data.success || !data.data || data.data.length === 0) {
-                container.innerHTML = `<p style="text-align: center; font-size: 1.1rem; color: #616161;">No orders received yet.</p>`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 3rem;">📋</div>
+                        <h3>No orders received yet</h3>
+                        <p>Your orders will appear here once buyers place them.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -97,41 +127,40 @@ function loadFarmerOrders() {
 
             data.data.forEach(o => {
                 let badgeClass = "badge-pending";
-                if (o.orderStatus === "Accepted") badgeClass = "badge-accepted";
-                if (o.orderStatus === "Rejected") badgeClass = "badge-rejected";
-                if (o.orderStatus === "Completed") badgeClass = "badge-completed";
+                let statusIcon = "⏳";
+                if (o.orderStatus === "Accepted") { badgeClass = "badge-accepted"; statusIcon = "✅"; }
+                if (o.orderStatus === "Rejected") { badgeClass = "badge-rejected"; statusIcon = "❌"; }
+                if (o.orderStatus === "Completed") { badgeClass = "badge-completed"; statusIcon = "🎉"; }
 
                 html += `
                     <tr>
-                        <td>#${o.id}</td>
-                        <td><strong>${escapeHtml(o.productName)}</strong></td>
+                        <td><strong>#${o.id}</strong></td>
+                        <td><strong>${escapeHtml(toTitleCase(o.productName))}</strong></td>
                         <td>Buyer #${o.buyerId}</td>
                         <td>${o.quantity}</td>
-                        <td>₹${o.totalAmount.toFixed(2)}</td>
-                        <td><span class="badge ${badgeClass}">${escapeHtml(o.orderStatus)}</span></td>
+                        <td><strong>₹${o.totalAmount.toFixed(2)}</strong></td>
+                        <td><span class="badge ${badgeClass}">${statusIcon} ${escapeHtml(o.orderStatus)}</span></td>
                         <td>
-                            <div style="display: flex; gap: 8px;">
-                                <select id="statusSelect_${o.id}" class="form-control" style="padding: 4px 8px; width: 130px;">
-                                    <option value="Pending" ${o.orderStatus === 'Pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="Accepted" ${o.orderStatus === 'Accepted' ? 'selected' : ''}>Accepted</option>
-                                    <option value="Rejected" ${o.orderStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                                    <option value="Completed" ${o.orderStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <div style="display: flex; gap: 8px; align-items:center;">
+                                <select id="statusSelect_${o.id}" class="form-control" style="padding: 6px 10px; width: 145px;">
+                                    <option value="Pending" ${o.orderStatus === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                                    <option value="Accepted" ${o.orderStatus === 'Accepted' ? 'selected' : ''}>✅ Accepted</option>
+                                    <option value="Rejected" ${o.orderStatus === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                    <option value="Completed" ${o.orderStatus === 'Completed' ? 'selected' : ''}>🎉 Completed</option>
                                 </select>
-                                <button class="btn btn-primary" style="padding: 5px 12px; font-size: 0.9rem;" onclick="updateOrderStatus(${o.id})">Update Status</button>
+                                <button class="btn btn-primary" style="padding: 6px 14px; font-size: 0.9rem; white-space:nowrap;" onclick="updateOrderStatus(${o.id})">Update</button>
                             </div>
                         </td>
                     </tr>
                 `;
             });
 
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            html += `</tbody></table></div>`;
             container.innerHTML = html;
         })
-        .catch(err => console.error("Error loading farmer orders:", err));
+        .catch(err => {
+            if (container) container.innerHTML = `<p style="text-align:center; color:#B71C1C;">⚠️ Error loading orders.</p>`;
+        });
 }
 
 // Update Order Status by Farmer
@@ -142,6 +171,7 @@ function updateOrderStatus(orderId) {
     const selectEl = document.getElementById(`statusSelect_${orderId}`);
     if (!selectEl) return;
 
+    // The option value= attributes are clean strings: "Pending", "Accepted", etc.
     const newStatus = selectEl.value;
 
     fetch(`/api/orders/status?orderId=${orderId}&farmerId=${user.id}`, {
@@ -152,7 +182,7 @@ function updateOrderStatus(orderId) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("Order status updated successfully.");
+            showToast("Order status updated successfully.");
             loadFarmerOrders();
         } else {
             alert(data.message || "Failed to update order status.");

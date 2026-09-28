@@ -14,12 +14,23 @@
 
     <main class="container">
         <div class="welcome-card">
-            <h2>Buyer Dashboard</h2>
-            <p>Welcome, <strong id="buyerName">Buyer</strong>! Explore fresh farm products and track your orders below.</p>
+            <h2>🛒 Buyer Dashboard</h2>
+            <p>Welcome back, <strong id="buyerName">Buyer</strong>! Explore fresh farm products and track your orders below.</p>
 
-            <div class="btn-group" style="margin-top: 2rem;">
-                <a href="products.html" class="btn btn-primary">🛒 Browse Available Products</a>
-                <a href="buyer-orders.html" class="btn btn-secondary">📦 My Orders</a>
+            <div class="dashboard-grid" style="margin-top: 2rem;">
+                <a href="products.html" class="dashboard-card">
+                    <div class="dashboard-icon">🌿</div>
+                    <div class="dashboard-label">Browse Market</div>
+                    <div class="dashboard-sub">Explore available farm products</div>
+                </a>
+                <a href="buyer-orders.html" class="dashboard-card">
+                    <div class="dashboard-icon">📦</div>
+                    <div class="dashboard-label">My Orders</div>
+                    <div class="dashboard-sub">Track your placed orders</div>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem;">
                 <button onclick="logout()" class="btn btn-danger">🚪 Logout</button>
             </div>
         </div>

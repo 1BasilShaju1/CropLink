@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Products - CropLink</title>
+    <title>Market - CropLink</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,25 +13,28 @@
     </nav>
 
     <main class="container">
-        <h1 style="color: #1B5E20; margin-bottom: 1.5rem;">Available Agricultural Products</h1>
+        <h1 style="color: #1B5E20; margin-bottom: 1.5rem;">🌿 Agricultural Market</h1>
 
         <!-- Search & Category Filter Bar -->
         <div class="filter-bar">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search products by name..." oninput="searchProducts()">
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search products by name..." oninput="searchProducts()">
             <select id="categorySelect" class="form-control" onchange="filterProductsByCategory()">
                 <option value="All">All Categories</option>
-                <option value="Vegetables">Vegetables</option>
-                <option value="Fruits">Fruits</option>
-                <option value="Grains">Grains</option>
-                <option value="Spices">Spices</option>
-                <option value="Other Products">Other Products</option>
+                <option value="Vegetables">🥦 Vegetables</option>
+                <option value="Fruits">🍎 Fruits</option>
+                <option value="Grains">🌾 Grains</option>
+                <option value="Spices">🌶️ Spices</option>
+                <option value="Other Products">📦 Other Products</option>
             </select>
-            <button onclick="loadAvailableProducts()" class="btn btn-outline" style="padding: 10px 18px;">Reset Filters</button>
+            <button onclick="clearFilters()" class="btn btn-outline" style="padding: 10px 18px; white-space:nowrap;">✕ Clear Filters</button>
         </div>
 
         <!-- Products Grid -->
         <div id="productGridContainer" class="product-grid">
-            <p style="text-align: center; color: #616161; grid-column: 1/-1;">Loading products...</p>
+            <div style="text-align:center; padding:3rem; grid-column:1/-1;">
+                <div class="spinner"></div>
+                <p style="color:#616161; margin-top:1rem;">Loading market products...</p>
+            </div>
         </div>
     </main>
 
@@ -43,8 +46,15 @@
     <script src="js/products.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            checkLoggedIn(); // Allow any logged-in user (farmer or buyer)
             loadAvailableProducts();
         });
+
+        function clearFilters() {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("categorySelect").value = "All";
+            loadAvailableProducts();
+        }
     </script>
 </body>
 </html>

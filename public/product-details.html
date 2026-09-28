@@ -14,11 +14,14 @@
 
     <main class="container">
         <div style="margin-bottom: 1.5rem;">
-            <a href="products.html" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.9rem;">← Back to Products</a>
+            <a href="products.html" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.9rem;">← Back to Market</a>
         </div>
 
         <div id="productDetailsContainer">
-            <p style="text-align: center; color: #616161;">Loading product details...</p>
+            <div style="text-align:center; padding:4rem;">
+                <div class="spinner"></div>
+                <p style="color:#616161; margin-top:1rem;">Loading product details...</p>
+            </div>
         </div>
     </main>
 
@@ -30,6 +33,7 @@
     <script src="js/products.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            checkLoggedIn(); // Allow both farmers and buyers to view details
             loadProductDetails();
         });
     </script>

@@ -8,6 +8,6 @@ function initBuyerDashboard() {
 
     const buyerNameEl = document.getElementById("buyerName");
     if (buyerNameEl) {
-        buyerNameEl.textContent = user.name;
+        buyerNameEl.textContent = toTitleCase(user.name);
     }
 }

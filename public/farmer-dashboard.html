@@ -14,13 +14,33 @@
 
     <main class="container">
         <div class="welcome-card">
-            <h2>Farmer Dashboard</h2>
-            <p>Welcome, <strong id="farmerName">Farmer</strong>! Manage your agricultural inventory and view incoming buyer orders below.</p>
+            <h2>🌾 Farmer Dashboard</h2>
+            <p>Welcome back, <strong id="farmerName">Farmer</strong>! Manage your agricultural products and incoming buyer orders below.</p>
 
-            <div class="btn-group" style="margin-top: 2rem;">
-                <a href="add-product.html" class="btn btn-primary">➕ Add Product</a>
-                <a href="my-products.html" class="btn btn-secondary">📦 My Products</a>
-                <a href="farmer-orders.html" class="btn btn-outline">📋 View Orders</a>
+            <div class="dashboard-grid" style="margin-top: 2rem;">
+                <a href="add-product.html" class="dashboard-card">
+                    <div class="dashboard-icon">➕</div>
+                    <div class="dashboard-label">Add Product</div>
+                    <div class="dashboard-sub">List a new product in the market</div>
+                </a>
+                <a href="my-products.html" class="dashboard-card">
+                    <div class="dashboard-icon">📦</div>
+                    <div class="dashboard-label">My Products</div>
+                    <div class="dashboard-sub">Manage your own listings</div>
+                </a>
+                <a href="products.html" class="dashboard-card">
+                    <div class="dashboard-icon">🌿</div>
+                    <div class="dashboard-label">Browse Market</div>
+                    <div class="dashboard-sub">See all products including others</div>
+                </a>
+                <a href="farmer-orders.html" class="dashboard-card">
+                    <div class="dashboard-icon">📋</div>
+                    <div class="dashboard-label">View Orders</div>
+                    <div class="dashboard-sub">Manage received buyer orders</div>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem;">
                 <button onclick="logout()" class="btn btn-danger">🚪 Logout</button>
             </div>
         </div>
@@ -35,7 +55,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             const user = checkAccess("FARMER");
             if (user) {
-                document.getElementById("farmerName").textContent = user.name;
+                document.getElementById("farmerName").textContent = toTitleCase(user.name);
             }
         });
     </script>
