@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <div class="form-card">
+            <h2>Create New Account</h2>
+            <div id="registerAlertMsg" class="alert"></div>
+
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Register As:</label>
+                    <select id="role" class="form-control" required>
+                        <option value="FARMER">Farmer</option>
+                        <option value="BUYER">Buyer</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem; color: #616161;">
+                Already have an account? <a href="login.html" style="color: #2E7D32; font-weight: 600;">Login Here</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const role = document.getElementById("role").value;
+
+            if (!name || !email || !password || !role) {
+                showAlert("registerAlertMsg", "Please fill in all required fields.", false);
+                return;
+            }
+
+            fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password, role })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert("registerAlertMsg", "Registration successful.", true);
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1200);
+                } else {
+                    showAlert("registerAlertMsg", data.message || "Registration failed.", false);
+                }
+            })
+            .catch(err => showAlert("registerAlertMsg", "Error connecting to server.", false));
+        }
+    </script>
+</body>
+</html>

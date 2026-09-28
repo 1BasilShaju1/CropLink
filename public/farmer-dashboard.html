@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="farmer-dashboard.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <div class="welcome-card">
+            <h2>Farmer Dashboard</h2>
+            <p>Welcome, <strong id="farmerName">Farmer</strong>! Manage your agricultural inventory and view incoming buyer orders below.</p>
+
+            <div class="btn-group" style="margin-top: 2rem;">
+                <a href="add-product.html" class="btn btn-primary">➕ Add Product</a>
+                <a href="my-products.html" class="btn btn-secondary">📦 My Products</a>
+                <a href="farmer-orders.html" class="btn btn-outline">📋 View Orders</a>
+                <button onclick="logout()" class="btn btn-danger">🚪 Logout</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = checkAccess("FARMER");
+            if (user) {
+                document.getElementById("farmerName").textContent = user.name;
+            }
+        });
+    </script>
+</body>
+</html>

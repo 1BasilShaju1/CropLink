@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <div class="form-card">
+            <h2>Account Login</h2>
+            <div id="loginAlertMsg" class="alert"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address:</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="farmer@test.com or buyer@test.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password (e.g., 1234)" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Login</button>
+            </form>
+
+            <div style="margin-top: 1.5rem; background: #E8F5E9; padding: 12px; border-radius: 6px; font-size: 0.9rem;">
+                <strong>Demo Test Accounts:</strong><br>
+                • Farmer: <code>farmer@test.com</code> / <code>1234</code><br>
+                • Buyer: <code>buyer@test.com</code> / <code>1234</code>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; color: #616161;">
+                Don't have an account? <a href="register.html" style="color: #2E7D32; font-weight: 600;">Register Here</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!email || !password) {
+                showAlert("loginAlertMsg", "Please enter both email and password.", false);
+                return;
+            }
+
+            fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    showAlert("loginAlertMsg", "Login successful.", true);
+                    setLoggedInUser(data.data);
+                    setTimeout(() => {
+                        if (data.data.role === "FARMER") {
+                            window.location.href = "farmer-dashboard.html";
+                        } else {
+                            window.location.href = "buyer-dashboard.html";
+                        }
+                    }, 1000);
+                } else {
+                    showAlert("loginAlertMsg", data.message || "Invalid email or password.", false);
+                }
+            })
+            .catch(err => showAlert("loginAlertMsg", "Error connecting to server.", false));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="farmer-dashboard.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <div class="form-card">
+            <h2>Add New Agricultural Product</h2>
+            <div id="alertMsg" class="alert"></div>
+
+            <form id="addProductForm" onsubmit="handleAddProduct(event)">
+                <div class="form-group">
+                    <label for="productName">Product Name:</label>
+                    <input type="text" id="productName" class="form-control" placeholder="e.g., Organic Tomato" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productCategory">Product Category:</label>
+                    <select id="productCategory" class="form-control" required>
+                        <option value="Vegetables">Vegetables</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Grains">Grains</option>
+                        <option value="Spices">Spices</option>
+                        <option value="Other Products">Other Products</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price (₹):</label>
+                    <input type="number" step="0.01" id="price" class="form-control" placeholder="e.g., 40.00" min="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" class="form-control" placeholder="e.g., 50" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="unit">Unit:</label>
+                    <select id="unit" class="form-control" required>
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="litre">litre</option>
+                        <option value="piece">piece</option>
+                        <option value="dozen">dozen</option>
+                        <option value="packet">packet</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quality">Quality:</label>
+                    <select id="quality" class="form-control" required>
+                        <option value="Fresh">Fresh</option>
+                        <option value="Good">Good</option>
+                        <option value="Standard">Standard</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="availability">Availability:</label>
+                    <select id="availability" class="form-control" required>
+                        <option value="Available">Available</option>
+                        <option value="Limited Stock">Limited Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryOption">Delivery Option:</label>
+                    <select id="deliveryOption" class="form-control" required>
+                        <option value="Farm Pickup">Farm Pickup</option>
+                        <option value="Home Delivery">Home Delivery</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method:</label>
+                    <select id="paymentMethod" class="form-control" required>
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" class="form-control" placeholder="Short description of the product..."></textarea>
+                </div>
+
+                <div class="btn-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Product</button>
+                    <a href="my-products.html" class="btn btn-outline" style="flex: 1;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/farmer.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAccess("FARMER");
+        });
+    </script>
+</body>
+</html>

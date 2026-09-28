@@ -1,0 +1,398 @@
+/* ====================================================
+   CROPLINK - FARMER PRODUCT MANAGEMENT SYSTEM STYLESHEET
+   Agricultural Theme: #2E7D32 (Primary Green), #E8F5E9 (Bg Light), #F9A825 (Accent Yellow)
+   ==================================================== */
+
+:root {
+    --primary-color: #2E7D32;
+    --primary-hover: #1B5E20;
+    --bg-color: #E8F5E9;
+    --card-bg: #FFFFFF;
+    --accent-yellow: #F9A825;
+    --accent-hover: #F57F17;
+    --text-dark: #1B5E20;
+    --text-main: #212121;
+    --text-muted: #616161;
+    --border-color: #C8E6C9;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 10px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header & Navigation */
+.navbar {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.navbar .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    list-style: none;
+}
+
+.navbar .nav-links a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.navbar .nav-links a:hover, .navbar .nav-links a.active {
+    background-color: var(--primary-hover);
+}
+
+.navbar .user-info {
+    color: var(--accent-yellow);
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+/* Container */
+.container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    flex: 1;
+    width: 100%;
+}
+
+/* Hero & Welcome Sections */
+.hero-card, .welcome-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 5px solid var(--primary-color);
+    margin-bottom: 2rem;
+}
+
+.hero-card h1, .welcome-card h2 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 2.2rem;
+}
+
+.hero-card p, .welcome-card p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--accent-yellow);
+    color: #212121;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.btn-danger {
+    background-color: #D32F2F;
+    color: #FFFFFF;
+}
+
+.btn-danger:hover {
+    background-color: #B71C1C;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Form Styles */
+.form-card {
+    background: var(--card-bg);
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-top: 5px solid var(--primary-color);
+}
+
+.form-card h2 {
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #FAFAFA;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #FFFFFF;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* Alerts */
+.alert {
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+    display: none;
+}
+
+.alert-success {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border: 1px solid #A5D6A7;
+}
+
+.alert-error {
+    background-color: #FFCDD2;
+    color: #B71C1C;
+    border: 1px solid #EF9A9A;
+}
+
+/* Search and Filter Bar */
+.filter-bar {
+    background: var(--card-bg);
+    padding: 1.2rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.filter-bar input, .filter-bar select {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Product Cards Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.8rem;
+}
+
+.product-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.product-card .category-badge {
+    align-self: flex-start;
+    background-color: #E8F5E9;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+}
+
+.product-card h3 {
+    color: var(--text-dark);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.product-card .price-tag {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.8rem;
+}
+
+.product-card .details-list {
+    list-style: none;
+    margin-bottom: 1.2rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.product-card .details-list li {
+    margin-bottom: 0.4rem;
+}
+
+.product-card .details-list strong {
+    color: var(--text-main);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-available { background-color: #C8E6C9; color: #1B5E20; }
+.badge-limited { background-color: #FFF9C4; color: #F57F17; }
+.badge-out { background-color: #FFCDD2; color: #B71C1C; }
+
+.badge-pending { background-color: #FFE082; color: #E65100; }
+.badge-accepted { background-color: #BBDEFB; color: #0D47A1; }
+.badge-rejected { background-color: #FFCDD2; color: #B71C1C; }
+.badge-completed { background-color: #C8E6C9; color: #1B5E20; }
+
+/* Table Styles */
+.table-container {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.custom-table th, .custom-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-table th {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.custom-table tr:hover {
+    background-color: #F1F8E9;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    text-align: center;
+    padding: 1.2rem;
+    margin-top: auto;
+    font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .filter-bar {
+        flex-direction: column;
+    }
+    .filter-bar input, .filter-bar select {
+        width: 100%;
+    }
+}

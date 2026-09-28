@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="farmer-dashboard.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <h1 style="color: #1B5E20; margin-bottom: 1.5rem;">Received Buyer Orders</h1>
+
+        <div id="farmerOrdersContainer">
+            <p style="text-align: center; color: #616161;">Loading orders...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/orders.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAccess("FARMER");
+            loadFarmerOrders();
+        });
+    </script>
+</body>
+</html>

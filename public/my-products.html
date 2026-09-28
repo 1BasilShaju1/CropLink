@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Products - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="farmer-dashboard.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 15px;">
+            <h1 style="color: #1B5E20;">My Agricultural Products</h1>
+            <a href="add-product.html" class="btn btn-primary">➕ Add New Product</a>
+        </div>
+
+        <div id="farmerProductsContainer">
+            <p style="text-align: center; color: #616161;">Loading your products...</p>
+        </div>
+
+        <!-- Edit Product Section -->
+        <div id="editFormCard" class="form-card" style="display: none; margin-top: 3rem;">
+            <h2>Edit Product</h2>
+            <div id="editAlertMsg" class="alert"></div>
+
+            <form id="editProductForm" onsubmit="handleUpdateProduct(event)">
+                <input type="hidden" id="editProductId">
+
+                <div class="form-group">
+                    <label for="editProductName">Product Name:</label>
+                    <input type="text" id="editProductName" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductCategory">Product Category:</label>
+                    <select id="editProductCategory" class="form-control" required>
+                        <option value="Vegetables">Vegetables</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Grains">Grains</option>
+                        <option value="Spices">Spices</option>
+                        <option value="Other Products">Other Products</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPrice">Price (₹):</label>
+                    <input type="number" step="0.01" id="editPrice" class="form-control" min="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editQuantity">Quantity:</label>
+                    <input type="number" id="editQuantity" class="form-control" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editUnit">Unit:</label>
+                    <select id="editUnit" class="form-control" required>
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="litre">litre</option>
+                        <option value="piece">piece</option>
+                        <option value="dozen">dozen</option>
+                        <option value="packet">packet</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editQuality">Quality:</label>
+                    <select id="editQuality" class="form-control" required>
+                        <option value="Fresh">Fresh</option>
+                        <option value="Good">Good</option>
+                        <option value="Standard">Standard</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editAvailability">Availability:</label>
+                    <select id="editAvailability" class="form-control" required>
+                        <option value="Available">Available</option>
+                        <option value="Limited Stock">Limited Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDeliveryOption">Delivery Option:</label>
+                    <select id="editDeliveryOption" class="form-control" required>
+                        <option value="Farm Pickup">Farm Pickup</option>
+                        <option value="Home Delivery">Home Delivery</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPaymentMethod">Payment Method:</label>
+                    <select id="editPaymentMethod" class="form-control" required>
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">Description:</label>
+                    <textarea id="editDescription" class="form-control"></textarea>
+                </div>
+
+                <div class="btn-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Update Product</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="document.getElementById('editFormCard').style.display='none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/farmer.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAccess("FARMER");
+            loadFarmerProducts();
+        });
+    </script>
+</body>
+</html>

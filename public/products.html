@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Products - CropLink</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌾 CropLink</a>
+        <ul class="nav-links" id="navLinks"></ul>
+    </nav>
+
+    <main class="container">
+        <h1 style="color: #1B5E20; margin-bottom: 1.5rem;">Available Agricultural Products</h1>
+
+        <!-- Search & Category Filter Bar -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search products by name..." oninput="searchProducts()">
+            <select id="categorySelect" class="form-control" onchange="filterProductsByCategory()">
+                <option value="All">All Categories</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Grains">Grains</option>
+                <option value="Spices">Spices</option>
+                <option value="Other Products">Other Products</option>
+            </select>
+            <button onclick="loadAvailableProducts()" class="btn btn-outline" style="padding: 10px 18px;">Reset Filters</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="productGridContainer" class="product-grid">
+            <p style="text-align: center; color: #616161; grid-column: 1/-1;">Loading products...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 CropLink | College Project Demonstration</p>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/products.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadAvailableProducts();
+        });
+    </script>
+</body>
+</html>
