@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: croplink
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: DB_NAME
+        value: croplink_db
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false

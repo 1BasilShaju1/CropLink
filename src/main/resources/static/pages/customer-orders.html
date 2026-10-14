@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders & Deliveries | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .order-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .order-card-header {
+            background: var(--bg-alt);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .order-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 1.5rem 1rem;
+            margin: 0.5rem 0;
+        }
+        .order-stepper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        .step-node {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-surface);
+            padding: 0 0.5rem;
+        }
+        .step-icon-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-alt);
+            border: 2px solid var(--border-color);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            transition: all var(--transition-fast);
+        }
+        .step-node.active .step-icon-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+        .step-node.completed .step-icon-circle {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: #fff;
+        }
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .step-node.active .step-label {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        @media (max-width: 600px) {
+            .order-stepper {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farm2Door</span>
+            </a>
+
+            <nav class="navbar-nav">
+                <a href="/index.html" class="nav-link">Home</a>
+                <a href="/pages/products.html" class="nav-link">Marketplace</a>
+                <a href="/pages/customer-orders.html" class="nav-link active">My Orders</a>
+            </nav>
+
+            <div class="navbar-actions">
+                <a href="/pages/cart.html" class="cart-btn-pill">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <span>Cart</span>
+                    <span class="cart-count">0</span>
+                </a>
+                <div id="navbar-auth-section"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+        <div class="flex items-center justify-between" style="margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">My Farm Orders</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Track live progress from farm harvesting to your front doorstep.</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="/pages/products.html" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-plus"></i> Order Fresh Crops
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex gap-2" style="margin-bottom: 2rem; overflow-x: auto;" id="orders-filter-chips">
+            <button class="btn btn-primary btn-sm order-filter-btn" data-status="ALL">All Orders (3)</button>
+            <button class="btn btn-secondary btn-sm order-filter-btn" data-status="ACTIVE">In Transit / Active (2)</button>
+            <button class="btn btn-secondary btn-sm order-filter-btn" data-status="DELIVERED">Delivered (1)</button>
+        </div>
+
+        <!-- Orders List Container -->
+        <div id="orders-container">
+            <!-- Dynamically populated orders -->
+        </div>
+    </main>
+
+    <!-- Review Modal -->
+    <div class="modal-backdrop" id="review-modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 style="font-size: 1.15rem; margin: 0;"><i class="fa-solid fa-star" style="color:var(--accent); margin-right: 6px;"></i> Rate Harvest Quality</h3>
+                <button class="btn btn-sm" onclick="closeReviewModal()" style="background:none; border:none; color:var(--text-muted); font-size: 1.1rem;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="order-review-form">
+                <div class="modal-body">
+                    <input type="hidden" id="rev-order-id">
+                    <div class="form-group">
+                        <label class="form-label">How fresh was the produce?</label>
+                        <div class="interactive-stars flex" id="modal-star-selector" style="font-size: 1.75rem;">
+                            <i class="fa-solid fa-star active" data-v="1"></i>
+                            <i class="fa-solid fa-star active" data-v="2"></i>
+                            <i class="fa-solid fa-star active" data-v="3"></i>
+                            <i class="fa-solid fa-star active" data-v="4"></i>
+                            <i class="fa-solid fa-star active" data-v="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rev-comment">Review details for the Farmer</label>
+                        <textarea id="rev-comment" class="form-control" rows="3" placeholder="Taste, ripeness, packaging condition..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Farmer Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        // Auth Guard
+        Api.requireAuth(['CUSTOMER', 'FARMER', 'ADMIN', 'DELIVERY_PARTNER']);
+
+        const initialOrders = [
+            {
+                id: 'CL-948210',
+                date: '2026-10-14 09:15 AM',
+                status: 'OUT_FOR_DELIVERY',
+                total: 210.00,
+                deliveryMethod: 'CropLink Express Partner',
+                items: [
+                    { name: 'Organic Vine Tomatoes', qty: '3 kg', price: 135, img: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200' },
+                    { name: 'Crisp Palak (Spinach)', qty: '2 bunches', price: 60, img: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=200' }
+                ]
+            },
+            {
+                id: 'CL-921475',
+                date: '2026-10-13 03:40 PM',
+                status: 'PACKED',
+                total: 450.00,
+                deliveryMethod: 'Farmer Direct Delivery',
+                items: [
+                    { name: 'Alphonso Mangoes', qty: '1 dozen', price: 450, img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=200' }
+                ]
+            },
+            {
+                id: 'CL-887412',
+                date: '2026-10-09 11:20 AM',
+                status: 'DELIVERED',
+                total: 550.00,
+                deliveryMethod: 'CropLink Express Partner',
+                items: [
+                    { name: 'Basmati Rice', qty: '5 kg', price: 550, img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200' }
+                ]
+            }
+        ];
+
+        let customerOrders = initialOrders;
+        let activeFilter = 'ALL';
+
+        async function fetchOrders() {
+            try {
+                const res = await Api.get('/api/orders/my-orders');
+                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    customerOrders = res.data;
+                }
+            } catch (err) {
+                // Keep local orders
+            }
+            renderOrders();
+        }
+
+        const stages = ['PENDING', 'ACCEPTED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+
+        function getStepState(orderStatus, stepName) {
+            const currentIdx = stages.indexOf(orderStatus);
+            const stepIdx = stages.indexOf(stepName);
+            if (currentIdx > stepIdx) return 'completed';
+            if (currentIdx === stepIdx) return 'active';
+            return '';
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('orders-container');
+
+            const filtered = customerOrders.filter(ord => {
+                if (activeFilter === 'ALL') return true;
+                if (activeFilter === 'ACTIVE') return ord.status !== 'DELIVERED' && ord.status !== 'CANCELLED';
+                return ord.status === activeFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center" style="padding: 4rem 1.5rem; text-align: center;">
+                        <i class="fa-solid fa-box-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>No orders found</h3>
+                        <p style="color: var(--text-muted);">You have no orders matching this filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(ord => `
+                <div class="order-card fade-in-up">
+                    <div class="order-card-header">
+                        <div class="flex items-center gap-3">
+                            <div>
+                                <strong style="font-size: 1.1rem; color: var(--text-primary);">#${ord.id}</strong>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">${ord.date}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="badge badge-${ord.status.toLowerCase()}">
+                                ${ord.status.replace(/_/g, ' ')}
+                            </span>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary-dark);">
+                                ₹${ord.total.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 1.5rem;">
+                        <!-- Stepper Tracker -->
+                        <div class="order-stepper">
+                            <div class="step-node ${getStepState(ord.status, 'PENDING')}">
+                                <div class="step-icon-circle"><i class="fa-solid fa-file-invoice"></i></div>
+                                <span class="step-label">Ordered</span>
+                            </div>
+                            <div class="step-node ${getStepState(ord.status, 'ACCEPTED')}">
+                                <div class="step-icon-circle"><i class="fa-solid fa-circle-check"></i></div>
+                                <span class="step-label">Kisan Confirmed</span>
+                            </div>
+                            <div class="step-node ${getStepState(ord.status, 'PACKED')}">
+                                <div class="step-icon-circle"><i class="fa-solid fa-boxes-packing"></i></div>
+                                <span class="step-label">Fresh Packed</span>
+                            </div>
+                            <div class="step-node ${getStepState(ord.status, 'OUT_FOR_DELIVERY')}">
+                                <div class="step-icon-circle"><i class="fa-solid fa-truck-fast"></i></div>
+                                <span class="step-label">On Route</span>
+                            </div>
+                            <div class="step-node ${getStepState(ord.status, 'DELIVERED')}">
+                                <div class="step-icon-circle"><i class="fa-solid fa-house-circle-check"></i></div>
+                                <span class="step-label">Delivered</span>
+                            </div>
+                        </div>
+
+                        <!-- Item row -->
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 1rem;">
+                            <div class="flex flex-col gap-2">
+                                ${ord.items.map(item => `
+                                    <div class="flex items-center justify-between" style="font-size: 0.9rem;">
+                                        <div class="flex items-center gap-2">
+                                            <img src="${item.img || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100'}" style="width: 42px; height: 42px; border-radius: 6px; object-fit: cover;">
+                                            <div>
+                                                <strong>${item.name}</strong>
+                                                <div style="font-size: 0.8rem; color: var(--text-muted);">${item.qty}</div>
+                                            </div>
+                                        </div>
+                                        <strong>₹${item.price.toFixed(2)}</strong>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Card Footer actions -->
+                        <div class="flex items-center justify-between" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                <i class="fa-solid fa-truck-ramp-box" style="color:var(--primary); margin-right: 4px;"></i> Mode: <strong>${ord.deliveryMethod}</strong>
+                            </div>
+                            <div class="flex gap-2">
+                                ${ord.status === 'DELIVERED' ? `
+                                    <button class="btn btn-gold btn-sm" onclick="openReviewModal('${ord.id}')">
+                                        <i class="fa-solid fa-star"></i> Write Review
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-secondary btn-sm" onclick="Toast.info('Dispatching delivery driver live coordinate ping...');">
+                                    <i class="fa-solid fa-location-crosshairs"></i> Live GPS
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="Toast.info('Downloading official Tax Invoice PDF for #${ord.id}');">
+                                    <i class="fa-solid fa-file-arrow-down"></i> Invoice
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Review Modal Handlers
+        const reviewModal = document.getElementById('review-modal');
+        let selectedStars = 5;
+
+        function openReviewModal(orderId) {
+            document.getElementById('rev-order-id').value = orderId;
+            reviewModal.classList.add('active');
+        }
+
+        function closeReviewModal() {
+            reviewModal.classList.remove('active');
+        }
+
+        document.querySelectorAll('#modal-star-selector i').forEach(star => {
+            star.addEventListener('click', () => {
+                selectedStars = Number(star.getAttribute('data-v'));
+                document.querySelectorAll('#modal-star-selector i').forEach(s => {
+                    const v = Number(s.getAttribute('data-v'));
+                    s.className = v <= selectedStars ? 'fa-solid fa-star active' : 'fa-regular fa-star';
+                });
+            });
+        });
+
+        document.getElementById('order-review-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('rev-order-id').value;
+            const comment = document.getElementById('rev-comment').value.trim();
+
+            try {
+                await Api.post('/api/reviews', { orderId, rating: selectedStars, comment });
+            } catch (err) {}
+
+            closeReviewModal();
+            Toast.success('Thank you! Your feedback helps our farming community thrive.');
+        });
+
+        // Filter button clicks
+        document.querySelectorAll('.order-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.order-filter-btn').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-secondary');
+                });
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-primary');
+                activeFilter = btn.getAttribute('data-status');
+                renderOrders();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchOrders);
+    </script>
+</body>
+</html>

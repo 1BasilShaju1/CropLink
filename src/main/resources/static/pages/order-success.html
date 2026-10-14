@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed Successfully | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .success-wrapper {
+            min-height: calc(100vh - 72px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3.5rem 1.5rem;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(249, 168, 37, 0.05) 100%);
+        }
+        .success-card {
+            width: 100%;
+            max-width: 620px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .checkmark-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--primary-subtle);
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--primary);
+            font-size: 3rem;
+            animation: pulse-grow 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes pulse-grow {
+            0% { transform: scale(0.4); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farm2Door</span>
+            </a>
+            <div>
+                <a href="/pages/products.html" class="nav-link"><i class="fa-solid fa-store"></i> Marketplace</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="success-wrapper">
+        <div class="success-card fade-in-up">
+            <div class="checkmark-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <span class="badge badge-delivered" style="font-size: 0.85rem; padding: 0.35rem 0.95rem; margin-bottom: 0.75rem;">
+                <i class="fa-solid fa-seedling"></i> Farm Order Confirmed
+            </span>
+
+            <h1 style="font-size: 2.25rem; margin-bottom: 0.5rem;">Harvest On Its Way!</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; max-width: 480px; margin: 0 auto 1.75rem;">
+                Your order has been notified to the grower. Fresh crops are being picked, quality inspected, and prepared for your doorstep delivery.
+            </p>
+
+            <!-- Order ID Box -->
+            <div style="background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--border-color); margin-bottom: 2rem;">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.25rem;">
+                    Order Reference ID
+                </div>
+                <div id="display-order-id" style="font-size: 1.75rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">
+                    #CL-948210
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem;">
+                    <i class="fa-solid fa-envelope" style="color:var(--primary);"></i> Confirmation and tracking SMS sent to your phone
+                </div>
+            </div>
+
+            <!-- Mini Summary -->
+            <div class="card" style="text-align: left; padding: 1.25rem; margin-bottom: 2rem; background: var(--bg-surface);">
+                <div class="flex items-center justify-between" style="margin-bottom: 0.6rem; font-size: 0.9rem;">
+                    <span style="color: var(--text-secondary);">Estimated Doorstep Arrival:</span>
+                    <strong>Today, within 3 - 5 Hours</strong>
+                </div>
+                <div class="flex items-center justify-between" style="margin-bottom: 0.6rem; font-size: 0.9rem;">
+                    <span style="color: var(--text-secondary);">Payment Status:</span>
+                    <strong style="color: var(--accent);"><i class="fa-solid fa-hourglass-half"></i> Pay on Delivery (Cash/UPI)</strong>
+                </div>
+                <div class="flex items-center justify-between" style="font-size: 0.9rem;">
+                    <span style="color: var(--text-secondary);">Delivery Address:</span>
+                    <span id="display-address" style="font-weight: 600; text-align: right; max-width: 280px;">Your registered doorstep</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2 justify-center" style="flex-wrap: wrap;">
+                <a href="/pages/customer-orders.html" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-map-location-dot"></i> Track My Order
+                </a>
+                <a href="/pages/products.html" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-basket-shopping"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId') || '#CL-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('display-order-id').textContent = orderId.startsWith('#') ? orderId : '#' + orderId;
+
+            // Load saved session info if available
+            try {
+                const saved = JSON.parse(sessionStorage.getItem('last_croplink_order') || '{}');
+                if (saved.address) {
+                    document.getElementById('display-address').textContent = saved.address;
+                }
+            } catch (e) {}
+        });
+    </script>
+</body>
+</html>

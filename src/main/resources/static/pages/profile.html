@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — CropLink</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body{background:#f0f4f0;font-family:'Poppins',sans-serif;min-height:100vh}
+.top-nav{background:linear-gradient(135deg,#1b5e20,#2e7d32);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.top-nav .logo{color:#fff;font-size:1.2rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:8px}
+.top-nav .nav-links a{color:rgba(255,255,255,.85);text-decoration:none;margin-left:20px;font-size:.9rem;transition:.2s}
+.top-nav .nav-links a:hover{color:#fff}
+.container{max-width:900px;margin:40px auto;padding:0 20px}
+.profile-hero{background:linear-gradient(135deg,#1b5e20,#4caf50);border-radius:20px;padding:40px;color:#fff;display:flex;align-items:center;gap:28px;margin-bottom:28px;box-shadow:0 6px 24px rgba(0,0,0,.15)}
+.avatar{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;border:3px solid rgba(255,255,255,.4);flex-shrink:0}
+.profile-hero h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.profile-hero p{opacity:.85;font-size:.95rem}
+.role-badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);padding:4px 14px;border-radius:20px;font-size:.82rem;margin-top:8px;font-weight:600}
+.card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:24px}
+.card-title{font-size:1.1rem;font-weight:700;color:#1b5e20;margin-bottom:22px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #e8f5e9;padding-bottom:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.85rem;font-weight:600;color:#444}
+.form-group input{padding:11px 14px;border:1px solid #ddd;border-radius:10px;font-size:.92rem;outline:none;font-family:inherit;transition:.2s}
+.form-group input:focus{border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.1)}
+.form-group input:read-only{background:#f9f9f9;color:#888;cursor:not-allowed}
+.btn-save{background:linear-gradient(135deg,#2e7d32,#4caf50);color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:8px;margin-top:6px}
+.btn-save:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(76,175,80,.4)}
+.btn-back{background:transparent;border:1px solid #4caf50;color:#2e7d32;padding:10px 22px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;transition:.2s}
+.btn-back:hover{background:#e8f5e9}
+.notif-item{padding:14px 16px;border-radius:10px;margin-bottom:10px;border-left:4px solid #4caf50;background:#f9f9f9;display:flex;justify-content:space-between;align-items:flex-start}
+.notif-item.unread{background:#e8f5e9;border-left-color:#2e7d32}
+.notif-title{font-weight:600;color:#1b5e20;font-size:.9rem}
+.notif-msg{color:#555;font-size:.85rem;margin-top:4px}
+.notif-time{font-size:.78rem;color:#aaa;white-space:nowrap;margin-left:12px}
+.empty-notif{text-align:center;padding:30px;color:#aaa;font-size:.9rem}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="/" class="logo"><i class="fas fa-leaf"></i> CropLink</a>
+  <div class="nav-links">
+    <a href="#" id="dash-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <a href="#" id="back-btn" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+  <!-- Profile Hero -->
+  <div class="profile-hero">
+    <div class="avatar" id="avatar-icon"><i class="fas fa-user"></i></div>
+    <div>
+      <h2 id="hero-name">Loading...</h2>
+      <p id="hero-email">—</p>
+      <span class="role-badge" id="hero-role">—</span>
+    </div>
+  </div>
+
+  <!-- Edit Profile -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-edit"></i> Edit Profile</div>
+    <form id="profile-form" onsubmit="saveProfile(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Full Name</label>
+          <input type="text" id="fullName" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="email" readonly>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Phone Number</label>
+          <input type="tel" id="phone" placeholder="10-digit phone number">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-id-badge"></i> Role</label>
+          <input type="text" id="role" readonly>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Notifications -->
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-bell"></i> Notifications
+      <button onclick="markAllRead()" style="margin-left:auto;background:#e8f5e9;border:none;color:#2e7d32;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600">Mark all read</button>
+    </div>
+    <div id="notif-list"><div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications</div></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/js/api.js"></script>
+<script src="/js/effects.js"></script>
+<script>
+if (!Api.isLoggedIn()) window.location.href = '/pages/login.html';
+
+const roleIcons = { FARMER:'🌾', CUSTOMER:'🛒', DELIVERY_PARTNER:'🚚', ADMIN:'⚙️' };
+const dashLinks = { FARMER:'/pages/farmer-dashboard.html', CUSTOMER:'/pages/products.html', DELIVERY_PARTNER:'/pages/delivery-dashboard.html', ADMIN:'/pages/admin-dashboard.html' };
+
+async function loadProfile() {
+  try {
+    const res = await Api.get('/api/user/profile');
+    const u = res.data;
+    document.getElementById('hero-name').textContent = u.fullName;
+    document.getElementById('hero-email').textContent = u.email;
+    document.getElementById('hero-role').textContent = (roleIcons[u.role] || '') + ' ' + u.role.replace('_',' ');
+    document.getElementById('avatar-icon').textContent = roleIcons[u.role] || '👤';
+    document.getElementById('fullName').value = u.fullName;
+    document.getElementById('email').value = u.email;
+    document.getElementById('phone').value = u.phone || '';
+    document.getElementById('role').value = u.role.replace('_',' ');
+    // Set dashboard link
+    const dash = dashLinks[u.role] || '/';
+    document.getElementById('dash-link').href = dash;
+    document.getElementById('back-btn').href = dash;
+  } catch(e) { showToast('Failed to load profile', 'error'); }
+}
+
+async function saveProfile(e) {
+  e.preventDefault();
+  try {
+    await Api.put('/api/user/profile', {
+      fullName: document.getElementById('fullName').value.trim(),
+      phone: document.getElementById('phone').value.trim()
+    });
+    showToast('Profile updated successfully!', 'success');
+    loadProfile();
+  } catch(e) { showToast(e.message || 'Update failed', 'error'); }
+}
+
+async function loadNotifications() {
+  try {
+    const res = await Api.get('/api/notifications');
+    const notifs = res.data || [];
+    const list = document.getElementById('notif-list');
+    if (!notifs.length) { list.innerHTML = '<div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications</div>'; return; }
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item ${!n.read ? 'unread' : ''}">
+        <div>
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-msg">${n.message}</div>
+        </div>
+        <div class="notif-time">${new Date(n.createdAt).toLocaleDateString('en-IN')}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function markAllRead() {
+  try {
+    await Api.put('/api/notifications/read-all', {});
+    showToast('All notifications marked as read', 'success');
+    loadNotifications();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
+
+loadProfile();
+loadNotifications();
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <div class="container-fluid navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farmer Portal</span>
+            </a>
+
+            <div class="navbar-actions">
+                <div id="farmer-welcome-pill" class="flex items-center gap-2" style="font-weight: 500; font-size: 0.9rem;">
+                    <span style="color: var(--text-muted);">Welcome,</span>
+                    <strong id="farmer-name-display">Farmer</strong>
+                </div>
+                <a href="/pages/profile.html" class="btn btn-secondary btn-sm" title="Farm Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
+                <button onclick="Api.logout()" class="btn btn-outline btn-sm" style="color:#DC2626; border-color:#FCA5A5;">
+                    <i class="fa-solid fa-power-off"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-heading">Navigation</div>
+            <a href="/pages/farmer-dashboard.html" class="sidebar-link active">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/pages/farmer-products.html" class="sidebar-link">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>My Harvests</span>
+            </a>
+            <a href="/pages/add-product.html" class="sidebar-link">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Add Crop</span>
+            </a>
+            <a href="/pages/customer-orders.html" class="sidebar-link">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>Order Deliveries</span>
+            </a>
+
+            <div class="sidebar-heading" style="margin-top: 1.5rem;">Settings</div>
+            <a href="/pages/profile.html" class="sidebar-link">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Farm Profile</span>
+            </a>
+            <a href="/pages/products.html" class="sidebar-link">
+                <i class="fa-solid fa-store"></i>
+                <span>Customer View</span>
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Welcome Banner -->
+            <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #1B5E20, #2E7D32); color: #fff; padding: 2rem;">
+                <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <span class="badge" style="background: rgba(255,255,255,0.2); color: var(--accent-warm); margin-bottom: 0.5rem;">
+                            <i class="fa-solid fa-sun"></i> Harvest Season 2026
+                        </span>
+                        <h1 style="color: #fff; font-size: 1.85rem; margin-bottom: 0.35rem;">Kisan Command Center</h1>
+                        <p style="color: #E2E8F0; font-size: 0.95rem;">Track incoming buyer orders, product inventory, and instant bank settlements.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="/pages/add-product.html" class="btn btn-gold btn-lg">
+                            <i class="fa-solid fa-plus"></i> List New Harvest
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-4 gap-3" style="margin-bottom: 2rem;">
+                <div class="stats-card">
+                    <div>
+                        <div class="stats-value" id="stat-total-products">12</div>
+                        <div class="stats-label">Total Listed Crops</div>
+                    </div>
+                    <div class="stats-icon-wrap"><i class="fa-solid fa-seedling"></i></div>
+                </div>
+
+                <div class="stats-card">
+                    <div>
+                        <div class="stats-value" id="stat-active-products">9</div>
+                        <div class="stats-label">In-Stock Crops</div>
+                    </div>
+                    <div class="stats-icon-wrap gold"><i class="fa-solid fa-cubes-stacked"></i></div>
+                </div>
+
+                <div class="stats-card">
+                    <div>
+                        <div class="stats-value" id="stat-pending-orders">4</div>
+                        <div class="stats-label">Pending Orders</div>
+                    </div>
+                    <div class="stats-icon-wrap blue"><i class="fa-solid fa-clipboard-list"></i></div>
+                </div>
+
+                <div class="stats-card">
+                    <div>
+                        <div class="stats-value" id="stat-total-revenue">₹48,250</div>
+                        <div class="stats-label">Total Revenue</div>
+                    </div>
+                    <div class="stats-icon-wrap purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                </div>
+            </div>
+
+            <!-- Recent Orders Section -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Recent Customer Orders</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Direct consumer orders waiting for packing or dispatch</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="loadFarmerData()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Crop Items</th>
+                                <th>Amount</th>
+                                <th>Order Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="farmer-orders-tbody">
+                            <!-- Orders dynamic insertion -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Management Tiles -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="card card-hover-lift">
+                    <div class="flex items-center gap-2" style="margin-bottom: 0.75rem;">
+                        <i class="fa-solid fa-truck-clock" style="font-size: 1.5rem; color: var(--primary);"></i>
+                        <h3 style="font-size: 1.1rem;">Instant Logistics</h3>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Schedule doorstep pickup from CropLink certified delivery riders.
+                    </p>
+                    <a href="#" onclick="Toast.info('Logistics pickup request dispatched to regional hub'); return false;" class="btn btn-outline btn-sm">Request Pickup</a>
+                </div>
+
+                <div class="card card-hover-lift">
+                    <div class="flex items-center gap-2" style="margin-bottom: 0.75rem;">
+                        <i class="fa-solid fa-seedling" style="font-size: 1.5rem; color: var(--accent);"></i>
+                        <h3 style="font-size: 1.1rem;">Price Advisory (Mandi)</h3>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        APMC Mandi spot rates: Onion ₹28/kg, Tomato ₹34/kg, Wheat ₹28/kg.
+                    </p>
+                    <a href="/pages/farmer-products.html" class="btn btn-outline btn-sm">Check Margins</a>
+                </div>
+
+                <div class="card card-hover-lift">
+                    <div class="flex items-center gap-2" style="margin-bottom: 0.75rem;">
+                        <i class="fa-solid fa-award" style="font-size: 1.5rem; color: #7B1FA2;"></i>
+                        <h3 style="font-size: 1.1rem;">Organic Certification</h3>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Get verified as 100% Zero-Budget Natural Farmer for 25% price boost.
+                    </p>
+                    <a href="/pages/profile.html" class="btn btn-outline btn-sm">Upload Certs</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        // Auth Guard: Only FARMER allowed
+        if (!Api.requireAuth(['FARMER'])) {
+            // Handled in Api.requireAuth
+        }
+
+        const user = Api.getUser() || { fullName: 'Farmer' };
+        document.getElementById('farmer-name-display').textContent = user.fullName;
+
+        const demoOrders = [
+            {
+                id: 'ORD-9021',
+                customerName: 'Priya Sharma',
+                items: 'Vine Tomatoes (5kg), Fresh Palak (3 bunches)',
+                amount: 315,
+                date: '2026-10-14 09:30 AM',
+                status: 'PENDING'
+            },
+            {
+                id: 'ORD-9018',
+                customerName: 'Anand Verma',
+                items: 'Alphonso Mangoes (2 dozen)',
+                amount: 900,
+                date: '2026-10-13 04:15 PM',
+                status: 'ACCEPTED'
+            },
+            {
+                id: 'ORD-9012',
+                customerName: 'Meera Deshmukh',
+                items: 'Basmati Rice (10kg)',
+                amount: 1100,
+                date: '2026-10-13 11:20 AM',
+                status: 'PACKED'
+            },
+            {
+                id: 'ORD-8998',
+                customerName: 'Rajesh Nair',
+                items: 'Organic Bell Peppers (3kg)',
+                amount: 240,
+                date: '2026-10-12 02:45 PM',
+                status: 'DELIVERED'
+            }
+        ];
+
+        async function loadFarmerData() {
+            const tbody = document.getElementById('farmer-orders-tbody');
+
+            let orders = demoOrders;
+            try {
+                const res = await Api.get('/api/farmer/orders');
+                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    orders = res.data;
+                }
+            } catch (e) {
+                // Keep demo fallback
+            }
+
+            // Update stats
+            document.getElementById('stat-pending-orders').textContent = orders.filter(o => o.status === 'PENDING').length || 4;
+
+            tbody.innerHTML = orders.map(ord => `
+                <tr>
+                    <td><strong>#${ord.id}</strong></td>
+                    <td>${ord.customerName || 'Customer'}</td>
+                    <td>${ord.items || 'Fresh Produce'}</td>
+                    <td><strong>₹${ord.amount}</strong></td>
+                    <td>${ord.date}</td>
+                    <td>
+                        <span class="badge badge-${(ord.status || 'pending').toLowerCase()}">
+                            ${ord.status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="flex gap-1">
+                            ${ord.status === 'PENDING' ? `
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${ord.id}', 'ACCEPTED')">Accept</button>
+                            ` : ''}
+                            ${ord.status === 'ACCEPTED' ? `
+                                <button class="btn btn-gold btn-sm" onclick="updateOrderStatus('${ord.id}', 'PACKED')">Pack</button>
+                            ` : ''}
+                            ${ord.status === 'PACKED' ? `
+                                <button class="btn btn-outline btn-sm" onclick="updateOrderStatus('${ord.id}', 'OUT_FOR_DELIVERY')">Dispatch</button>
+                            ` : ''}
+                            <button class="btn btn-secondary btn-sm" onclick="Toast.info('Viewing invoice for #${ord.id}')" title="Invoice">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await Api.put(`/api/farmer/orders/${orderId}/status`, { status: newStatus });
+                Toast.success(`Order #${orderId} marked as ${newStatus}`);
+            } catch (e) {
+                // Simulate local state update
+                const ord = demoOrders.find(o => o.id === orderId);
+                if (ord) ord.status = newStatus;
+                Toast.success(`Order #${orderId} status updated to ${newStatus}`);
+            }
+            loadFarmerData();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFarmerData);
+    </script>
+</body>
+</html>

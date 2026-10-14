@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — CropLink</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+.admin-layout{display:flex;min-height:100vh;background:#f0f4f0}
+.admin-sidebar{width:240px;background:linear-gradient(180deg,#1b5e20,#2e7d32);color:#fff;padding:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.admin-sidebar .logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
+.admin-sidebar nav a{display:flex;align-items:center;gap:12px;padding:14px 20px;color:rgba(255,255,255,0.85);text-decoration:none;transition:.2s;font-size:.95rem}
+.admin-sidebar nav a:hover,.admin-sidebar nav a.active{background:rgba(255,255,255,0.15);color:#fff;border-left:3px solid #a5d6a7}
+.admin-sidebar nav a i{width:20px;text-align:center}
+.admin-main{margin-left:240px;flex:1;padding:30px}
+.admin-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.admin-topbar h1{font-size:1.6rem;font-weight:700;color:#1b5e20}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:32px}
+.stat-card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07);border-left:4px solid #4caf50;display:flex;align-items:center;gap:16px}
+.stat-card .stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#e8f5e9;color:#2e7d32}
+.stat-card .stat-info h3{font-size:1.6rem;font-weight:700;color:#1b5e20;line-height:1}
+.stat-card .stat-info p{font-size:.82rem;color:#777;margin-top:4px}
+.tab-bar{display:flex;gap:8px;margin-bottom:22px;border-bottom:2px solid #e0e0e0;padding-bottom:0}
+.tab-btn{padding:10px 22px;border:none;background:none;cursor:pointer;font-size:.95rem;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;font-family:inherit}
+.tab-btn.active{color:#2e7d32;border-bottom-color:#2e7d32;font-weight:600}
+.tab-content{display:none}.tab-content.active{display:block}
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.data-table th{background:#f5f5f5;padding:12px 16px;text-align:left;font-size:.85rem;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.data-table td{padding:12px 16px;border-bottom:1px solid #f0f0f0;font-size:.9rem;color:#333;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600}
+.badge-active,.badge-ACTIVE{background:#e8f5e9;color:#2e7d32}
+.badge-blocked,.badge-BLOCKED{background:#ffebee;color:#c62828}
+.badge-PENDING_APPROVAL{background:#fff3e0;color:#e65100}
+.badge-PENDING{background:#fff3e0;color:#e65100}
+.badge-DELIVERED{background:#e8f5e9;color:#2e7d32}
+.badge-CANCELLED{background:#ffebee;color:#c62828}
+.badge-FARMER{background:#e3f2fd;color:#1565c0}
+.badge-CUSTOMER{background:#f3e5f5;color:#6a1b9a}
+.badge-ADMIN{background:#fce4ec;color:#880e4f}
+.btn-sm{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.82rem;font-weight:600;transition:.2s}
+.btn-green{background:#4caf50;color:#fff}.btn-green:hover{background:#388e3c}
+.btn-red{background:#f44336;color:#fff}.btn-red:hover{background:#c62828}
+.btn-orange{background:#ff9800;color:#fff}.btn-orange:hover{background:#e65100}
+.btn-blue{background:#2196f3;color:#fff}.btn-blue:hover{background:#1565c0}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.search-input{padding:9px 16px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;width:260px}
+.search-input:focus{border-color:#4caf50}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:32px;width:460px;max-width:95vw}
+.modal-box h3{margin-bottom:20px;color:#1b5e20}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;font-size:.88rem;font-weight:600;color:#444}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;font-family:inherit;box-sizing:border-box}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#4caf50}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px}
+@media(max-width:768px){.admin-sidebar{width:60px}.admin-sidebar .logo span,.admin-sidebar nav a span{display:none}.admin-main{margin-left:60px;padding:16px}.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="logo"><i class="fas fa-leaf"></i><span>CropLink Admin</span></div>
+    <nav>
+      <a href="#" class="active" onclick="showTab('dashboard',this)"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+      <a href="#" onclick="showTab('users',this)"><i class="fas fa-users"></i><span>Users</span></a>
+      <a href="#" onclick="showTab('products',this)"><i class="fas fa-seedling"></i><span>Products</span></a>
+      <a href="#" onclick="showTab('orders',this)"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
+      <a href="#" onclick="showTab('categories',this)"><i class="fas fa-tags"></i><span>Categories</span></a>
+      <a href="/pages/profile.html" style="margin-top:auto"><i class="fas fa-user"></i><span>Profile</span></a>
+      <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 id="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+      <span id="admin-name" style="color:#555;font-size:.95rem"></span>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="s-users">—</h3><p>Total Users</p></div></div>
+        <div class="stat-card" style="border-color:#f9a825"><div class="stat-icon" style="background:#fff8e1;color:#f57f17"><i class="fas fa-tractor"></i></div><div class="stat-info"><h3 id="s-farmers">—</h3><p>Farmers</p></div></div>
+        <div class="stat-card" style="border-color:#7b1fa2"><div class="stat-icon" style="background:#f3e5f5;color:#7b1fa2"><i class="fas fa-user-tie"></i></div><div class="stat-info"><h3 id="s-customers">—</h3><p>Customers</p></div></div>
+        <div class="stat-card" style="border-color:#1565c0"><div class="stat-icon" style="background:#e3f2fd;color:#1565c0"><i class="fas fa-seedling"></i></div><div class="stat-info"><h3 id="s-products">—</h3><p>Total Products</p></div></div>
+        <div class="stat-card" style="border-color:#00897b"><div class="stat-icon" style="background:#e0f2f1;color:#00897b"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><h3 id="s-orders">—</h3><p>Total Orders</p></div></div>
+        <div class="stat-card" style="border-color:#e53935"><div class="stat-icon" style="background:#ffebee;color:#e53935"><i class="fas fa-rupee-sign"></i></div><div class="stat-info"><h3 id="s-revenue">—</h3><p>Revenue (₹)</p></div></div>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+        <h3 style="color:#1b5e20;margin-bottom:16px"><i class="fas fa-info-circle"></i> Platform Overview</h3>
+        <p style="color:#666;line-height:1.7">Welcome to the CropLink admin panel. Use the sidebar to manage users, products, orders, and categories. All platform activity is monitored here.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+          <div style="background:#e8f5e9;border-radius:10px;padding:16px">
+            <h4 style="color:#2e7d32"><i class="fas fa-check-circle"></i> Active Products</h4>
+            <p id="s-active-products" style="font-size:1.8rem;font-weight:700;color:#1b5e20">—</p>
+          </div>
+          <div style="background:#fff3e0;border-radius:10px;padding:16px">
+            <h4 style="color:#e65100"><i class="fas fa-clock"></i> Pending Orders</h4>
+            <p id="s-pending-orders" style="font-size:1.8rem;font-weight:700;color:#e65100">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="tab-users" class="tab-content">
+      <div class="section-header">
+        <h2 style="color:#1b5e20">Manage Users</h2>
+        <input class="search-input" id="user-search" placeholder="🔍 Search users..." oninput="filterUsers()">
+      </div>
+      <table class="data-table" id="users-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="users-tbody"><tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="tab-products" class="tab-content">
+      <div class="section-header">
+        <h2 style="color:#1b5e20">Manage Products</h2>
+        <select id="product-status-filter" onchange="loadProducts()" style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;font-family:inherit;outline:none">
+          <option value="">All Status</option>
+          <option value="PENDING_APPROVAL">Pending Approval</option>
+          <option value="ACTIVE">Active</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Farmer</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="products-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="tab-orders" class="tab-content">
+      <div class="section-header">
+        <h2 style="color:#1b5e20">All Orders</h2>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Farmer</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="orders-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Categories Tab -->
+    <div id="tab-categories" class="tab-content">
+      <div class="section-header">
+        <h2 style="color:#1b5e20">Manage Categories</h2>
+        <button class="btn-sm btn-green" onclick="openCatModal()"><i class="fas fa-plus"></i> Add Category</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="categories-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal-box">
+    <h3><i class="fas fa-tag"></i> <span id="cat-modal-title">Add Category</span></h3>
+    <div class="form-group"><label>Name</label><input id="cat-name" placeholder="Category name"></div>
+    <div class="form-group"><label>Description</label><textarea id="cat-desc" rows="3" placeholder="Brief description"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeCatModal()" style="background:#eee;color:#333">Cancel</button>
+      <button class="btn-sm btn-green" onclick="saveCategory()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/js/api.js"></script>
+<script src="/js/effects.js"></script>
+<script>
+// Auth guard
+if (!Api.isLoggedIn() || Api.getUserRole() !== 'ADMIN') {
+  window.location.href = '/pages/login.html';
+}
+const user = Api.getUser();
+document.getElementById('admin-name').textContent = '👤 ' + (user?.fullName || 'Admin');
+
+let allUsers = [], currentCatId = null;
+
+function showTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-sidebar nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {dashboard:'Dashboard',users:'Manage Users',products:'Manage Products',orders:'All Orders',categories:'Categories'};
+  document.getElementById('page-title').innerHTML = '<i class="fas fa-tachometer-alt"></i> ' + (titles[tab] || tab);
+  if (tab === 'users') loadUsers();
+  else if (tab === 'products') loadProducts();
+  else if (tab === 'orders') loadOrders();
+  else if (tab === 'categories') loadCategories();
+}
+
+async function loadStats() {
+  try {
+    const res = await Api.get('/api/admin/dashboard');
+    const s = res.data;
+    document.getElementById('s-users').textContent = s.totalUsers;
+    document.getElementById('s-farmers').textContent = s.totalFarmers;
+    document.getElementById('s-customers').textContent = s.totalCustomers;
+    document.getElementById('s-products').textContent = s.totalProducts;
+    document.getElementById('s-orders').textContent = s.totalOrders;
+    document.getElementById('s-revenue').textContent = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('s-active-products').textContent = s.activeProducts;
+    document.getElementById('s-pending-orders').textContent = s.pendingOrders;
+  } catch(e) { showToast('Failed to load stats', 'error'); }
+}
+
+async function loadUsers() {
+  try {
+    const res = await Api.get('/api/admin/users?page=0&size=100');
+    allUsers = res.data.content || [];
+    renderUsers(allUsers);
+  } catch(e) { showToast('Failed to load users', 'error'); }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-tbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>#${u.id}</td>
+      <td>${u.fullName}</td>
+      <td>${u.email}</td>
+      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td><span class="badge badge-${u.status}">${u.status}</span></td>
+      <td>
+        ${u.status !== 'BLOCKED' ? `<button class="btn-sm btn-red" onclick="updateUserStatus(${u.id},'BLOCKED')">Block</button>` : `<button class="btn-sm btn-green" onclick="updateUserStatus(${u.id},'ACTIVE')">Activate</button>`}
+      </td>
+    </tr>`).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  renderUsers(allUsers.filter(u => u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+}
+
+async function updateUserStatus(userId, status) {
+  try {
+    await Api.patch(`/api/admin/users/${userId}/status`, { status });
+    showToast('User status updated to ' + status, 'success');
+    loadUsers();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadProducts() {
+  const status = document.getElementById('product-status-filter')?.value || '';
+  try {
+    const res = await Api.get(`/api/admin/products?page=0&size=100`);
+    let products = res.data.content || [];
+    if (status) products = products.filter(p => p.productStatus === status);
+    const tbody = document.getElementById('products-tbody');
+    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products</td></tr>'; return; }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td>#${p.id}</td>
+        <td>${p.name}</td>
+        <td>${p.farmerName}</td>
+        <td>${p.categoryName}</td>
+        <td>₹${p.price}</td>
+        <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap">
+          ${p.productStatus === 'PENDING_APPROVAL' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button><button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>` : ''}
+          ${p.productStatus === 'ACTIVE' ? `<button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>` : ''}
+          ${p.productStatus === 'INACTIVE' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>` : ''}
+        </td>
+      </tr>`).join('');
+  } catch(e) { showToast('Failed to load products', 'error'); }
+}
+
+async function updateProductStatus(productId, status) {
+  try {
+    await Api.patch(`/api/admin/products/${productId}/status`, { status });
+    showToast('Product status updated', 'success');
+    loadProducts();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadOrders() {
+  try {
+    const res = await Api.get('/api/admin/orders?page=0&size=100');
+    const orders = res.data.content || [];
+    const tbody = document.getElementById('orders-tbody');
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders</td></tr>'; return; }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td>#${o.id}</td>
+        <td>${o.customerName}</td>
+        <td>${o.farmerName}</td>
+        <td>₹${o.finalAmount}</td>
+        <td>${o.deliveryMethod}</td>
+        <td><span class="badge badge-${o.orderStatus}">${o.orderStatus}</span></td>
+        <td>${new Date(o.orderDate).toLocaleDateString('en-IN')}</td>
+      </tr>`).join('');
+  } catch(e) { showToast('Failed to load orders', 'error'); }
+}
+
+async function loadCategories() {
+  try {
+    const res = await Api.get('/api/admin/categories');
+    const cats = res.data || [];
+    const tbody = document.getElementById('categories-tbody');
+    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories</td></tr>'; return; }
+    tbody.innerHTML = cats.map(c => `
+      <tr>
+        <td>#${c.id}</td>
+        <td>${c.name}</td>
+        <td>${c.description || '—'}</td>
+        <td><span class="badge badge-${c.status}">${c.status}</span></td>
+        <td>
+          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name}','${c.description||''}')">Edit</button>
+          <button class="btn-sm btn-red" onclick="deleteCategory(${c.id})" style="margin-left:6px">Delete</button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { showToast('Failed to load categories', 'error'); }
+}
+
+function openCatModal() { currentCatId = null; document.getElementById('cat-modal-title').textContent='Add Category'; document.getElementById('cat-name').value=''; document.getElementById('cat-desc').value=''; document.getElementById('cat-modal').classList.add('show'); }
+function editCategory(id, name, desc) { currentCatId = id; document.getElementById('cat-modal-title').textContent='Edit Category'; document.getElementById('cat-name').value=name; document.getElementById('cat-desc').value=desc; document.getElementById('cat-modal').classList.add('show'); }
+function closeCatModal() { document.getElementById('cat-modal').classList.remove('show'); }
+
+async function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  const description = document.getElementById('cat-desc').value.trim();
+  if (!name) { showToast('Name is required', 'error'); return; }
+  try {
+    if (currentCatId) await Api.put(`/api/admin/categories/${currentCatId}`, { name, description, status: 'ACTIVE' });
+    else await Api.post('/api/admin/categories', { name, description });
+    showToast('Category saved!', 'success');
+    closeCatModal();
+    loadCategories();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  try { await Api.delete(`/api/admin/categories/${id}`); showToast('Deleted', 'success'); loadCategories(); }
+  catch(e) { showToast(e.message, 'error'); }
+}
+
+function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
+
+loadStats();
+</script>
+</body>
+</html>

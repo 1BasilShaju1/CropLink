@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Details | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            padding: 3rem 0;
+        }
+        .main-gallery-img {
+            width: 100%;
+            height: 420px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+        .gallery-thumbs {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .thumb-item {
+            width: 76px;
+            height: 76px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all var(--transition-fast);
+        }
+        .thumb-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .attribute-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.85rem;
+            background: var(--bg-alt);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+        }
+        .qty-control-box {
+            display: inline-flex;
+            align-items: center;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+        .qty-control-box button {
+            width: 42px;
+            height: 42px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            transition: background var(--transition-fast);
+        }
+        .qty-control-box button:hover {
+            background: var(--bg-alt);
+        }
+        .qty-control-box input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            background: transparent;
+            outline: none;
+        }
+        @media (max-width: 850px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farm2Door</span>
+            </a>
+
+            <nav class="navbar-nav">
+                <a href="/index.html" class="nav-link">Home</a>
+                <a href="/pages/products.html" class="nav-link active">Marketplace</a>
+                <a href="/pages/customer-orders.html" class="nav-link">Orders</a>
+            </nav>
+
+            <div class="navbar-actions">
+                <a href="/pages/cart.html" class="cart-btn-pill" title="Cart">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <span>Cart</span>
+                    <span class="cart-count">0</span>
+                </a>
+                <div id="navbar-auth-section"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Breadcrumb -->
+        <div style="padding-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+            <a href="/index.html" style="color:var(--text-muted);">Home</a> /
+            <a href="/pages/products.html" style="color:var(--text-muted);">Marketplace</a> /
+            <span id="crumb-product-name" style="color:var(--primary); font-weight: 600;">Harvest Details</span>
+        </div>
+
+        <div class="details-grid">
+            <!-- Left: Gallery -->
+            <div>
+                <img id="main-image" class="main-gallery-img" src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800" alt="Crop Detail">
+                <div class="gallery-thumbs" id="thumbs-list">
+                    <!-- Thumbs populated by JS -->
+                </div>
+
+                <!-- Farmer Info Card -->
+                <div class="card" style="margin-top: 2rem; background: var(--bg-alt);">
+                    <div class="flex items-center gap-3">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-tractor"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 id="farmer-name" style="font-size: 1.1rem; margin: 0;">Ramesh Patel</h4>
+                                <span class="badge badge-delivered" style="font-size: 0.65rem;">Verified Kisan</span>
+                            </div>
+                            <p id="farmer-location" style="font-size: 0.85rem; color: var(--text-muted); margin: 0.2rem 0;">Nashik Organic Agro Belt, Maharashtra</p>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> 100% CropLink Direct Fair Guarantee
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Details & Purchase -->
+            <div>
+                <div class="flex items-center gap-2" style="margin-bottom: 0.5rem;">
+                    <span id="badge-organic" class="badge badge-organic">100% Certified Organic</span>
+                    <span id="badge-freshness" class="badge badge-fresh">Harvested Today</span>
+                </div>
+
+                <h1 id="product-title" style="font-size: 2.25rem; margin-bottom: 0.75rem;">Organic Vine-Ripened Tomatoes</h1>
+
+                <div class="flex items-center gap-3" style="margin-bottom: 1.25rem;">
+                    <div class="product-rating" style="margin: 0; font-size: 1rem;">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span id="rating-text" style="font-weight: 600; font-size: 0.95rem;">4.8 (32 Customer Reviews)</span>
+                </div>
+
+                <!-- Price & Stock -->
+                <div style="padding: 1.25rem; background: var(--primary-subtle); border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: baseline; justify-content: space-between;">
+                    <div>
+                        <span id="product-price" style="font-size: 2.25rem; font-weight: 800; color: var(--primary-dark);">₹45</span>
+                        <span id="product-unit" style="font-size: 1rem; color: var(--text-secondary); font-weight: 600;">/ kg</span>
+                    </div>
+                    <div>
+                        <span class="badge badge-accepted" style="font-size: 0.8rem;">
+                            <i class="fa-solid fa-boxes-stacked"></i> <span id="product-stock">180 kg in stock</span>
+                        </span>
+                    </div>
+                </div>
+
+                <p id="product-description" style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.75rem; font-size: 0.975rem;">
+                    Grown with traditional bio-compost and zero synthetic pesticides. Sweet, deeply red, and packed with vine freshness. Perfect for fresh salads, authentic purees, and rich gravies.
+                </p>
+
+                <!-- Attributes Grid -->
+                <div class="grid grid-cols-2 gap-2" style="margin-bottom: 2rem;">
+                    <div class="attribute-pill">
+                        <i class="fa-solid fa-award" style="color:var(--primary);"></i>
+                        <div><strong style="display:block; font-size:0.75rem; color:var(--text-muted);">QUALITY GRADE</strong> <span id="attr-grade">Grade A (Prime Export)</span></div>
+                    </div>
+                    <div class="attribute-pill">
+                        <i class="fa-solid fa-seedling" style="color:var(--accent);"></i>
+                        <div><strong style="display:block; font-size:0.75rem; color:var(--text-muted);">RIPENESS LEVEL</strong> <span id="attr-ripeness">Ready to Eat</span></div>
+                    </div>
+                    <div class="attribute-pill">
+                        <i class="fa-solid fa-calendar-day" style="color:#00897B;"></i>
+                        <div><strong style="display:block; font-size:0.75rem; color:var(--text-muted);">HARVEST DATE</strong> <span id="attr-harvest">Oct 14, 2026</span></div>
+                    </div>
+                    <div class="attribute-pill">
+                        <i class="fa-solid fa-truck" style="color:#7B1FA2;"></i>
+                        <div><strong style="display:block; font-size:0.75rem; color:var(--text-muted);">DELIVERY MODES</strong> <span>Express Farm Drop</span></div>
+                    </div>
+                </div>
+
+                <!-- Purchase Controls -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="flex items-center gap-3" style="flex-wrap: wrap;">
+                        <div class="qty-control-box">
+                            <button type="button" id="qty-minus" aria-label="Decrease quantity"><i class="fa-solid fa-minus"></i></button>
+                            <input type="number" id="qty-input" value="1" min="1" max="50">
+                            <button type="button" id="qty-plus" aria-label="Increase quantity"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <button id="add-to-cart-btn" class="btn btn-outline btn-lg" style="flex: 1;">
+                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        </button>
+
+                        <button id="buy-now-btn" class="btn btn-primary btn-lg" style="flex: 1;">
+                            <i class="fa-solid fa-bolt"></i> Buy Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Assurances -->
+                <div class="flex gap-4" style="color: var(--text-muted); font-size: 0.85rem;">
+                    <div><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary); margin-right: 4px;"></i> Same day dispatch</div>
+                    <div><i class="fa-solid fa-money-bill-transfer" style="color:var(--primary); margin-right: 4px;"></i> 100% money back freshness</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews & Ratings Section -->
+        <section style="padding: 3rem 0; border-top: 1px solid var(--border-color); margin-top: 2rem;">
+            <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
+                <div>
+                    <h2>Customer Experience & Reviews</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Real feedback from verified doorstep buyers</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('review-form-card').scrollIntoView({behavior:'smooth'})">
+                    <i class="fa-solid fa-pen"></i> Write Review
+                </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3" id="reviews-list">
+                <div class="card">
+                    <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+                        <strong>Ananya Sharma</strong>
+                        <div class="star-rating"><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i></div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        "The aroma when opening the parcel was unmistakable farm fresh! Never going back to supermarket vegetables."
+                    </p>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • 2 days ago</span>
+                </div>
+
+                <div class="card">
+                    <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+                        <strong>Kishore Kulkarni</strong>
+                        <div class="star-rating"><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i></div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        "Packed cleanly in ventilated paper boxes. Tomatoes had zero transit damage. Excellent initiative for farmers."
+                    </p>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • 4 days ago</span>
+                </div>
+
+                <div class="card">
+                    <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+                        <strong>Deepika Rao</strong>
+                        <div class="star-rating"><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-solid fa-star active"></i><i class="fa-regular fa-star"></i></div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        "Super sweet and firm. Arrived within 4 hours of ordering."
+                    </p>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • 1 week ago</span>
+                </div>
+            </div>
+
+            <!-- Write a Review Form -->
+            <div class="card" id="review-form-card" style="margin-top: 2.5rem; max-width: 650px;">
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem;"><i class="fa-solid fa-comment-dots" style="color:var(--primary);"></i> Add Your Feedback</h3>
+                <form id="add-review-form">
+                    <div class="form-group">
+                        <label class="form-label">Rate this Harvest:</label>
+                        <div class="interactive-stars flex" id="star-selector">
+                            <i class="fa-solid fa-star active" data-val="1"></i>
+                            <i class="fa-solid fa-star active" data-val="2"></i>
+                            <i class="fa-solid fa-star active" data-val="3"></i>
+                            <i class="fa-solid fa-star active" data-val="4"></i>
+                            <i class="fa-solid fa-star active" data-val="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="review-comment">Your Review / Comment</label>
+                        <textarea id="review-comment" class="form-control" rows="3" placeholder="How was the freshness, taste, and delivery speed?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id') || '1';
+
+        // Sample product default
+        let currentProduct = {
+            id: Number(productId),
+            name: 'Organic Vine-Ripened Tomatoes',
+            farmerName: 'Ramesh Patel, Nashik Orchards',
+            price: 45,
+            unit: 'kg',
+            stock: 180,
+            qualityGrade: 'Grade A (Export Prime)',
+            ripenessLevel: 'Ready to Eat',
+            freshnessStatus: 'Harvested Today',
+            organicStatus: '100% Certified Organic',
+            harvestDate: 'Oct 14, 2026',
+            description: 'Nurtured organically in deep black volcanic soil without any chemical sprays. Sweet flavor and firm texture, harvested this dawn.',
+            images: [
+                'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800',
+                'https://images.unsplash.com/photo-1546470427-e26264be0b11?w=800',
+                'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=800'
+            ]
+        };
+
+        async function loadProductDetails() {
+            try {
+                const res = await Api.get(`/api/products/${productId}`);
+                if (res && res.data) {
+                    currentProduct = res.data;
+                }
+            } catch (e) {
+                // Keep rich fallback
+            }
+
+            // Bind values
+            document.getElementById('crumb-product-name').textContent = currentProduct.name;
+            document.getElementById('product-title').textContent = currentProduct.name;
+            document.getElementById('farmer-name').textContent = currentProduct.farmerName || 'Verified Farm';
+            document.getElementById('product-price').textContent = '₹' + currentProduct.price;
+            document.getElementById('product-unit').textContent = '/ ' + (currentProduct.unit || 'kg');
+            document.getElementById('product-stock').textContent = (currentProduct.quantity || currentProduct.stock || 150) + ' ' + (currentProduct.unit || 'kg') + ' in stock';
+            document.getElementById('product-description').textContent = currentProduct.description || '';
+            document.getElementById('attr-grade').textContent = currentProduct.qualityGrade || 'Grade A';
+            document.getElementById('attr-ripeness').textContent = currentProduct.ripenessLevel || 'Ready to Eat';
+            document.getElementById('attr-harvest').textContent = currentProduct.harvestDate || 'Harvested Today';
+            document.getElementById('badge-organic').textContent = currentProduct.organicStatus || '100% Organic';
+
+            // Gallery
+            const mainImg = document.getElementById('main-image');
+            const thumbsList = document.getElementById('thumbs-list');
+            const images = (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images : [currentProduct.imageUrl || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800'];
+
+            mainImg.src = images[0];
+
+            thumbsList.innerHTML = images.map((imgSrc, idx) => `
+                <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchImage('${imgSrc}', this)">
+                    <img src="${imgSrc}" alt="Crop Thumbnail">
+                </div>
+            `).join('');
+        }
+
+        window.switchImage = (src, el) => {
+            document.getElementById('main-image').src = src;
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        };
+
+        // Quantity controls
+        const qtyInput = document.getElementById('qty-input');
+        document.getElementById('qty-minus').addEventListener('click', () => {
+            const val = Math.max(1, Number(qtyInput.value) - 1);
+            qtyInput.value = val;
+        });
+        document.getElementById('qty-plus').addEventListener('click', () => {
+            const val = Number(qtyInput.value) + 1;
+            qtyInput.value = val;
+        });
+
+        // Add to Cart
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            const qty = Number(qtyInput.value) || 1;
+            Api.cart.addItem(currentProduct, qty);
+        });
+
+        // Buy Now
+        document.getElementById('buy-now-btn').addEventListener('click', () => {
+            const qty = Number(qtyInput.value) || 1;
+            Api.cart.addItem(currentProduct, qty);
+            window.location.href = '/pages/checkout.html';
+        });
+
+        // Reviews interactive stars
+        let selectedStars = 5;
+        const starIcons = document.querySelectorAll('#star-selector i');
+        starIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                selectedStars = Number(icon.getAttribute('data-val'));
+                starIcons.forEach(i => {
+                    const val = Number(i.getAttribute('data-val'));
+                    if (val <= selectedStars) {
+                        i.className = 'fa-solid fa-star active';
+                    } else {
+                        i.className = 'fa-regular fa-star';
+                    }
+                });
+            });
+        });
+
+        document.getElementById('add-review-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const comment = document.getElementById('review-comment').value.trim();
+            if (!comment) return;
+
+            const reviewContainer = document.getElementById('reviews-list');
+            const newCard = document.createElement('div');
+            newCard.className = 'card fade-in-up';
+            newCard.innerHTML = `
+                <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+                    <strong>You</strong>
+                    <div class="star-rating">
+                        ${Array.from({length: selectedStars}).map(() => '<i class="fa-solid fa-star active"></i>').join('')}
+                    </div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    "${comment}"
+                </p>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Just now</span>
+            `;
+            reviewContainer.prepend(newCard);
+            document.getElementById('review-comment').value = '';
+            Toast.success('Thank you for reviewing this farmer harvest!');
+        });
+
+        document.addEventListener('DOMContentLoaded', loadProductDetails);
+    </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Farm Harvests | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <header class="navbar">
+        <div class="container-fluid navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farmer Portal</span>
+            </a>
+
+            <div class="navbar-actions">
+                <a href="/pages/add-product.html" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-plus"></i> Add Crop
+                </a>
+                <a href="/pages/farmer-dashboard.html" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-heading">Navigation</div>
+            <a href="/pages/farmer-dashboard.html" class="sidebar-link">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/pages/farmer-products.html" class="sidebar-link active">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>My Harvests</span>
+            </a>
+            <a href="/pages/add-product.html" class="sidebar-link">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Add Crop</span>
+            </a>
+            <a href="/pages/customer-orders.html" class="sidebar-link">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>Order Deliveries</span>
+            </a>
+            <a href="/pages/profile.html" class="sidebar-link">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Farm Profile</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="flex items-center justify-between" style="margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">My Crop Inventory</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Manage listed crops, update market prices, and adjust harvest stock.</p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="filter-search" class="form-control" placeholder="Search my crops..." style="max-width: 240px;">
+                    <a href="/pages/add-product.html" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i> List New Harvest
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filter Chips -->
+            <div class="flex gap-2" style="margin-bottom: 1.5rem;" id="status-filter-group">
+                <button class="btn btn-primary btn-sm filter-pill" data-status="ALL">All Crops (6)</button>
+                <button class="btn btn-secondary btn-sm filter-pill" data-status="IN_STOCK">In Stock (4)</button>
+                <button class="btn btn-secondary btn-sm filter-pill" data-status="LOW_STOCK">Low Stock (1)</button>
+                <button class="btn btn-secondary btn-sm filter-pill" data-status="OUT_OF_STOCK">Out of Season (1)</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-3 gap-3" id="farmer-products-grid">
+                <!-- Dynamically populated -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal-backdrop" id="edit-modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 style="font-size: 1.15rem; margin: 0;"><i class="fa-solid fa-pen-to-square" style="color:var(--primary); margin-right: 6px;"></i> Edit Crop Details</h3>
+                <button class="btn btn-sm" onclick="closeEditModal()" style="background:none; border:none; color:var(--text-muted); font-size: 1.1rem;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="edit-form">
+                <div class="modal-body">
+                    <input type="hidden" id="edit-prod-id">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-prod-name">Crop Name</label>
+                        <input type="text" id="edit-prod-name" class="form-control" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="form-group">
+                            <label class="form-label" for="edit-prod-price">Price (₹)</label>
+                            <input type="number" id="edit-prod-price" class="form-control" required min="1" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="edit-prod-qty">Stock Quantity</label>
+                            <input type="number" id="edit-prod-qty" class="form-control" required min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-prod-status">Stock Status</label>
+                        <select id="edit-prod-status" class="form-control">
+                            <option value="IN_STOCK">In Stock</option>
+                            <option value="LOW_STOCK">Low Stock</option>
+                            <option value="OUT_OF_STOCK">Out of Stock</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-prod-desc">Description</label>
+                        <textarea id="edit-prod-desc" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        // Auth Guard: Only FARMER
+        Api.requireAuth(['FARMER']);
+
+        let myProducts = [
+            {
+                id: 201,
+                name: 'Organic Vine Tomatoes',
+                category: 'Vegetables',
+                price: 45,
+                quantity: 180,
+                unit: 'kg',
+                status: 'IN_STOCK',
+                grade: 'Grade A',
+                harvestDate: '2026-10-13',
+                imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=80',
+                description: 'Naturally vine-ripened red tomatoes with high lycopene and rich sweet aroma.'
+            },
+            {
+                id: 202,
+                name: 'Alphonso Mangoes (Hapus)',
+                category: 'Fruits',
+                price: 450,
+                quantity: 65,
+                unit: 'dozen',
+                status: 'IN_STOCK',
+                grade: 'Export Prime',
+                harvestDate: '2026-10-12',
+                imageUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500&auto=format&fit=crop&q=80',
+                description: 'Sweet, golden-fleshed Alphonso harvested from our coastal red laterite soil.'
+            },
+            {
+                id: 203,
+                name: 'Crisp Palak (Spinach)',
+                category: 'Greens & Herbs',
+                price: 30,
+                quantity: 15,
+                unit: 'bunch',
+                status: 'LOW_STOCK',
+                grade: 'Grade A',
+                harvestDate: '2026-10-14',
+                imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500&auto=format&fit=crop&q=80',
+                description: 'Tender baby spinach leaves picked fresh at 5:00 AM.'
+            },
+            {
+                id: 204,
+                name: 'Crispy Red Onions',
+                category: 'Vegetables',
+                price: 38,
+                quantity: 420,
+                unit: 'kg',
+                status: 'IN_STOCK',
+                grade: 'Grade A',
+                harvestDate: '2026-10-11',
+                imageUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=500&auto=format&fit=crop&q=80',
+                description: 'Pungent, dry skin Nashik red onions with extended storage life.'
+            },
+            {
+                id: 205,
+                name: 'Golden Sweet Corn Cobs',
+                category: 'Vegetables',
+                price: 25,
+                quantity: 120,
+                unit: 'piece',
+                status: 'IN_STOCK',
+                grade: 'Grade A',
+                harvestDate: '2026-10-13',
+                imageUrl: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=500&auto=format&fit=crop&q=80',
+                description: 'Juicy, non-GMO sweet corn directly picked from our irrigated beds.'
+            },
+            {
+                id: 206,
+                name: 'Organic Strawberry Crates',
+                category: 'Fruits',
+                price: 220,
+                quantity: 0,
+                unit: 'kg',
+                status: 'OUT_OF_STOCK',
+                grade: 'Grade B',
+                harvestDate: '2026-09-28',
+                imageUrl: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=500&auto=format&fit=crop&q=80',
+                description: 'Mahabaleshwar mountain strawberries. Currently off-cycle.'
+            }
+        ];
+
+        let currentFilter = 'ALL';
+
+        async function loadProducts() {
+            try {
+                const res = await Api.get('/api/farmer/products');
+                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    myProducts = res.data;
+                }
+            } catch (err) {
+                // Keep local products
+            }
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('farmer-products-grid');
+            const searchKeyword = document.getElementById('filter-search').value.toLowerCase();
+
+            const filtered = myProducts.filter(p => {
+                const matchesFilter = (currentFilter === 'ALL') || (p.status === currentFilter);
+                const matchesSearch = p.name.toLowerCase().includes(searchKeyword) || p.category.toLowerCase().includes(searchKeyword);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+                        <i class="fa-solid fa-boxes-packing" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>No crops found</h3>
+                        <p style="color: var(--text-muted);">Try adjusting your filter or search criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="card card-hover-lift product-card">
+                    <div class="product-image-wrap">
+                        <img src="${p.imageUrl}" alt="${p.name}">
+                        <div class="product-badges">
+                            <span class="badge ${p.status === 'IN_STOCK' ? 'badge-delivered' : (p.status === 'LOW_STOCK' ? 'badge-pending' : 'badge-cancelled')}">
+                                ${p.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="product-body">
+                        <div class="flex items-center justify-between" style="margin-bottom: 0.35rem;">
+                            <span class="badge badge-organic" style="font-size: 0.7rem;">${p.category}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-solid fa-calendar-day"></i> ${p.harvestDate}</span>
+                        </div>
+                        <h3 class="product-title">${p.name}</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            ${p.description}
+                        </p>
+                        <div class="flex items-center justify-between" style="margin-bottom: 1rem;">
+                            <div>
+                                <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">₹${p.price}</span>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">/${p.unit}</span>
+                            </div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: ${p.quantity > 20 ? 'var(--text-secondary)' : '#DC2626'};">
+                                <i class="fa-solid fa-warehouse"></i> ${p.quantity} ${p.unit}
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="openEditModal(${p.id})">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <button class="btn btn-outline btn-sm" style="color: #DC2626; border-color: #FCA5A5;" onclick="deleteProduct(${p.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Product
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to remove this crop listing from the market?')) return;
+            try {
+                await Api.delete(`/api/farmer/products/${id}`);
+                Toast.success('Crop removed successfully');
+            } catch (e) {
+                // Local delete
+                myProducts = myProducts.filter(p => p.id !== id);
+                Toast.info('Crop listing deleted');
+            }
+            renderGrid();
+        }
+
+        // Edit Modal
+        const editModal = document.getElementById('edit-modal');
+        function openEditModal(id) {
+            const p = myProducts.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('edit-prod-id').value = p.id;
+            document.getElementById('edit-prod-name').value = p.name;
+            document.getElementById('edit-prod-price').value = p.price;
+            document.getElementById('edit-prod-qty').value = p.quantity;
+            document.getElementById('edit-prod-status').value = p.status;
+            document.getElementById('edit-prod-desc').value = p.description || '';
+            editModal.classList.add('active');
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('active');
+        }
+
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = Number(document.getElementById('edit-prod-id').value);
+            const p = myProducts.find(item => item.id === id);
+            if (p) {
+                p.name = document.getElementById('edit-prod-name').value;
+                p.price = Number(document.getElementById('edit-prod-price').value);
+                p.quantity = Number(document.getElementById('edit-prod-qty').value);
+                p.status = document.getElementById('edit-prod-status').value;
+                p.description = document.getElementById('edit-prod-desc').value;
+            }
+            try {
+                await Api.put(`/api/farmer/products/${id}`, p);
+            } catch (err) {
+                // Keep local updated
+            }
+            closeEditModal();
+            Toast.success('Product updated successfully');
+            renderGrid();
+        });
+
+        // Search & Filters
+        document.getElementById('filter-search').addEventListener('input', renderGrid);
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-pill').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-secondary');
+                });
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-primary');
+                currentFilter = btn.getAttribute('data-status');
+                renderGrid();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>

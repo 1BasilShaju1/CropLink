@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropLink Farm2Door | Fresh Direct From Farmers</title>
+    <meta name="description" content="Connecting rural farmers directly with doorstep customers. Fresh organic produce with zero middlemen.">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+    <!-- Page Transition Overlay -->
+    <div class="page-transition-overlay"></div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farm2Door</span>
+            </a>
+
+            <nav class="navbar-nav">
+                <a href="/index.html" class="nav-link active">Home</a>
+                <a href="/pages/products.html" class="nav-link">Marketplace</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#why-croplink" class="nav-link">Why Us</a>
+            </nav>
+
+            <div class="navbar-actions">
+                <a href="/pages/cart.html" class="cart-btn-pill" title="Shopping Cart">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <span>Cart</span>
+                    <span class="cart-count" style="display:none;">0</span>
+                </a>
+
+                <div id="navbar-auth-section" class="flex items-center gap-2">
+                    <a href="/pages/login.html" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="/pages/register.html" class="btn btn-primary btn-sm">Join CropLink</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-pattern"></div>
+            <div class="hero-overlay"></div>
+            <div class="container">
+                <div class="hero-content fade-in-up">
+                    <div class="hero-pill">
+                        <i class="fa-solid fa-seedling"></i> 100% Direct From Local Soil
+                    </div>
+                    <h1 class="hero-title">
+                        Farm Fresh, Delivered Straight <span>To Your Door</span>.
+                    </h1>
+                    <p class="hero-desc">
+                        Empowering local farmers by connecting them directly to consumers. Enjoy fresh, harvested-to-order organic crops with zero middlemen, fair prices, and lightning delivery.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/pages/products.html" class="btn btn-gold btn-lg">
+                            <i class="fa-solid fa-store"></i> Explore Fresh Market
+                        </a>
+                        <a href="/pages/register.html" class="btn btn-outline btn-lg" style="border-color: #fff; color: #fff;">
+                            <i class="fa-solid fa-tractor"></i> Become a Farmer Partner
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section style="padding: 3rem 0; background: var(--bg-surface); border-bottom: 1px solid var(--border-color);">
+            <div class="container">
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="stats-card fade-in-up">
+                        <div>
+                            <div class="stats-value">500+</div>
+                            <div class="stats-label">Registered Farmers</div>
+                        </div>
+                        <div class="stats-icon-wrap"><i class="fa-solid fa-wheat-awn"></i></div>
+                    </div>
+                    <div class="stats-card fade-in-up">
+                        <div>
+                            <div class="stats-value">10,000+</div>
+                            <div class="stats-label">Fresh Products</div>
+                        </div>
+                        <div class="stats-icon-wrap gold"><i class="fa-solid fa-apple-whole"></i></div>
+                    </div>
+                    <div class="stats-card fade-in-up">
+                        <div>
+                            <div class="stats-value">50,000+</div>
+                            <div class="stats-label">Happy Customers</div>
+                        </div>
+                        <div class="stats-icon-wrap blue"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="stats-card fade-in-up">
+                        <div>
+                            <div class="stats-value">99.8%</div>
+                            <div class="stats-label">Freshness Rating</div>
+                        </div>
+                        <div class="stats-icon-wrap purple"><i class="fa-solid fa-award"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section style="padding: 5rem 0; background: var(--bg-page);">
+            <div class="container">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto 3.5rem;">
+                    <span class="badge badge-organic" style="margin-bottom: 0.75rem;">Categories</span>
+                    <h2>Harvested by Nature</h2>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Browse fresh, nutrient-rich produce hand-picked by local farmers</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3" id="categories-grid">
+                    <!-- Category Cards -->
+                    <a href="/pages/products.html?category=Vegetables" class="card card-hover-lift text-center" style="padding: 2rem 1.5rem; text-align: center;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+                            <i class="fa-solid fa-carrot"></i>
+                        </div>
+                        <h3 style="font-size: 1.15rem; margin-bottom: 0.3rem;">Organic Vegetables</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Root greens, tomatoes, squash</p>
+                    </a>
+
+                    <a href="/pages/products.html?category=Fruits" class="card card-hover-lift text-center" style="padding: 2rem 1.5rem; text-align: center;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--accent-warm); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+                            <i class="fa-solid fa-lemon"></i>
+                        </div>
+                        <h3 style="font-size: 1.15rem; margin-bottom: 0.3rem;">Orchard Fruits</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Mangoes, berries, sweet citrus</p>
+                    </a>
+
+                    <a href="/pages/products.html?category=Grains" class="card card-hover-lift text-center" style="padding: 2rem 1.5rem; text-align: center;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: #E0F2F1; color: #00897B; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+                            <i class="fa-solid fa-bowl-rice"></i>
+                        </div>
+                        <h3 style="font-size: 1.15rem; margin-bottom: 0.3rem;">Grains & Pulses</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Basmati rice, lentils, millets</p>
+                    </a>
+
+                    <a href="/pages/products.html?category=Herbs" class="card card-hover-lift text-center" style="padding: 2rem 1.5rem; text-align: center;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: #F3E5F5; color: #8E24AA; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+                            <i class="fa-solid fa-spa"></i>
+                        </div>
+                        <h3 style="font-size: 1.15rem; margin-bottom: 0.3rem;">Herbs & Spices</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Turmeric, mint, cardamom</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section style="padding: 5rem 0; background: var(--bg-surface); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+            <div class="container">
+                <div class="flex items-center justify-between" style="margin-bottom: 3rem;">
+                    <div>
+                        <span class="badge badge-fresh" style="margin-bottom: 0.5rem;">Harvest Spotlight</span>
+                        <h2>Fresh This Morning</h2>
+                    </div>
+                    <a href="/pages/products.html" class="btn btn-outline btn-sm">
+                        View All Crops <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3" id="featured-products-grid">
+                    <!-- Products dynamically loaded by JS or fallback -->
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" style="padding: 5.5rem 0; background: var(--bg-page);">
+            <div class="container">
+                <div style="text-align: center; max-width: 650px; margin: 0 auto 4rem;">
+                    <span class="badge badge-organic" style="margin-bottom: 0.75rem;">Simplicity & Freshness</span>
+                    <h2>How CropLink Works</h2>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">From fertile fields directly to your kitchen in three transparent steps.</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="card text-center fade-in-up" style="padding: 2.5rem 1.75rem; text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem;">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">1. Farmers Harvest</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                            Farmers list their crops with harvest dates, grade certifications, and transparent direct pricing.
+                        </p>
+                    </div>
+
+                    <div class="card text-center fade-in-up" style="padding: 2.5rem 1.75rem; text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent-warm); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem;">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">2. You Order Direct</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                            Customers browse verified local farm crops, choose delivery modes, and order directly without broker margins.
+                        </p>
+                    </div>
+
+                    <div class="card text-center fade-in-up" style="padding: 2.5rem 1.75rem; text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #E0F2F1; color: #00897B; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem;">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">3. Fast Doorstep Delivery</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                            Partner delivery agents swiftly pick up packed goods from farms and drop them right to your doorstep within hours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why CropLink Section -->
+        <section id="why-croplink" style="padding: 5.5rem 0; background: var(--bg-surface); border-top: 1px solid var(--border-color);">
+            <div class="container">
+                <div class="grid grid-cols-2 gap-4 items-center">
+                    <div class="fade-in-up">
+                        <span class="badge badge-organic" style="margin-bottom: 0.75rem;">Fair Agriculture</span>
+                        <h2 style="font-size: 2.4rem; margin-bottom: 1.25rem;">Why India Chooses CropLink</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.05rem;">
+                            Traditional supply chains cut up to 60% of a farmer's earnings while vegetables take days to reach urban markets. CropLink eliminates unfair cartels and ensures nutrition stays intact.
+                        </p>
+
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <div class="flex items-center gap-2">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <strong>100% Farm-Level Traceability:</strong> Know exactly which farmer and village nurtured your food.
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <strong>Guaranteed Farmer Prosperity:</strong> Farmers receive up to 85% of retail revenue compared to 25% traditionally.
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <strong>Same-Day / Express Drop:</strong> Freshly harvested crops reach your refrigerator before losing vitamins.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2.5rem;">
+                            <a href="/pages/products.html" class="btn btn-primary btn-lg">
+                                <i class="fa-solid fa-basket-shopping"></i> Start Shopping Fresh
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="fade-in-up" style="position: relative;">
+                        <img src="https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&auto=format&fit=crop&q=80" alt="Fresh Harvest" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); width: 100%; object-fit: cover; max-height: 480px;">
+                        <div class="card" style="position: absolute; bottom: -20px; left: -20px; padding: 1.25rem; max-width: 260px; box-shadow: var(--shadow-xl); border-color: var(--primary-lighter);">
+                            <div class="flex items-center gap-2" style="margin-bottom: 0.4rem;">
+                                <i class="fa-solid fa-shield-heart" style="color: var(--primary); font-size: 1.5rem;"></i>
+                                <strong style="font-size: 1rem;">100% Quality Inspected</strong>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Every crop undergoes strict natural freshness checks before dispatch.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-4">
+                <div>
+                    <div class="footer-brand">
+                        <i class="fa-solid fa-leaf"></i> Crop<span>Link</span>
+                    </div>
+                    <p class="footer-desc">
+                        Direct agricultural bridge connecting hardworking rural farmers with healthy urban families across the nation.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-pill" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="social-pill" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="social-pill" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-pill" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/pages/products.html" class="footer-link">Fresh Marketplace</a></li>
+                        <li><a href="/pages/register.html" class="footer-link">Farmer Onboarding</a></li>
+                        <li><a href="/pages/cart.html" class="footer-link">Shopping Cart</a></li>
+                        <li><a href="/pages/login.html" class="footer-link">Member Portal</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-heading">Categories</h4>
+                    <ul class="footer-links">
+                        <li><a href="/pages/products.html?category=Vegetables" class="footer-link">Organic Vegetables</a></li>
+                        <li><a href="/pages/products.html?category=Fruits" class="footer-link">Seasonal Fruits</a></li>
+                        <li><a href="/pages/products.html?category=Grains" class="footer-link">Lentils & Grains</a></li>
+                        <li><a href="/pages/products.html?category=Dairy" class="footer-link">Farm Dairy & Honey</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-heading">Support & Reach</h4>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-location-dot" style="color:var(--accent); margin-right: 8px;"></i> Krishi Bhavan, Agri Tech Park</li>
+                        <li><i class="fa-solid fa-phone" style="color:var(--accent); margin-right: 8px;"></i> +91 1800 245 8899</li>
+                        <li><i class="fa-solid fa-envelope" style="color:var(--accent); margin-right: 8px;"></i> support@croplink.in</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>© 2026 CropLink Farm2Door. All agricultural rights reserved.</div>
+                <div class="flex gap-3">
+                    <a href="#" style="color: #64748B;">Privacy Policy</a>
+                    <a href="#" style="color: #64748B;">Terms of Service</a>
+                    <a href="#" style="color: #64748B;">Farmer Fair Charter</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Sample featured crops for immediate rich rendering + API fetch
+            const fallbackProducts = [
+                {
+                    id: 101,
+                    name: 'Fresh Organic Vine Tomatoes',
+                    farmerName: 'Ramesh Patel, Nashik Farms',
+                    price: 45,
+                    unit: 'kg',
+                    rating: 4.8,
+                    ratingCount: 32,
+                    organicStatus: '100% Organic',
+                    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=80'
+                },
+                {
+                    id: 102,
+                    name: 'Sweet Alphonso Mangoes',
+                    farmerName: 'Suresh Gaikwad, Ratnagiri',
+                    price: 450,
+                    unit: 'dozen',
+                    rating: 4.9,
+                    ratingCount: 58,
+                    organicStatus: 'Naturally Ripened',
+                    imageUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500&auto=format&fit=crop&q=80'
+                },
+                {
+                    id: 103,
+                    name: 'Crisp Green Spinach (Palak)',
+                    farmerName: 'Kavita Devi, Meerut Greenery',
+                    price: 30,
+                    unit: 'bunch',
+                    rating: 4.7,
+                    ratingCount: 19,
+                    organicStatus: 'Chemical Free',
+                    imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500&auto=format&fit=crop&q=80'
+                },
+                {
+                    id: 104,
+                    name: 'Traditional Basmati Paddy Rice',
+                    farmerName: 'Harpreet Singh, Karnal Fields',
+                    price: 110,
+                    unit: 'kg',
+                    rating: 4.9,
+                    ratingCount: 44,
+                    organicStatus: 'Direct Mill',
+                    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop&q=80'
+                }
+            ];
+
+            const grid = document.getElementById('featured-products-grid');
+
+            const renderProducts = (products) => {
+                grid.innerHTML = products.map(p => `
+                    <div class="product-card fade-in-up">
+                        <div class="product-image-wrap">
+                            <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500'}" alt="${p.name}" loading="lazy">
+                            <div class="product-badges">
+                                <span class="badge badge-organic">${p.organicStatus || 'Farm Fresh'}</span>
+                            </div>
+                        </div>
+                        <div class="product-body">
+                            <div class="product-farmer">
+                                <i class="fa-solid fa-user-check"></i>
+                                <span>${p.farmerName || 'Verified Farm'}</span>
+                            </div>
+                            <a href="/pages/product-details.html?id=${p.id}" class="product-title">${p.name}</a>
+                            <div class="product-rating">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star-half-stroke"></i>
+                                <span class="rating-num">${p.rating || 4.8} (${p.ratingCount || 20})</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="product-price">
+                                    <span class="currency">₹${p.price}</span>
+                                    <span class="unit">/${p.unit || 'kg'}</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm add-to-cart-btn" data-product='${JSON.stringify(p).replace(/'/g, "&#39;")}'>
+                                    <i class="fa-solid fa-cart-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Bind Add to Cart buttons
+                grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const prodData = JSON.parse(btn.getAttribute('data-product'));
+                        Api.cart.addItem(prodData, 1);
+                    });
+                });
+            };
+
+            // Render fallback immediately for instant visual delight
+            renderProducts(fallbackProducts);
+
+            // Fetch live API products if available
+            try {
+                const res = await Api.get('/api/products?featured=true');
+                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    renderProducts(res.data.slice(0, 4));
+                }
+            } catch (err) {
+                // Keep fallback gracefully
+            }
+        });
+    </script>
+</body>
+</html>
