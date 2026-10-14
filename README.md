@@ -220,7 +220,66 @@ git push -u origin main
 
 ---
 
-## 🚀 9. Step-by-Step Render Cloud Deployment Guide
+## 🚀 9. Step-by-Step Railway Cloud Deployment (Recommended — 1-Click MySQL + Zero Cold Starts)
+
+Railway is the most efficient and straightforward cloud platform for running **CropLink** because **both the Spring Boot Web Service and the MySQL Database run inside the same project with automatic internal linking**.
+
+```mermaid
+flowchart LR
+    GitHub["GitHub (CropLink Repo)"] -->|Auto Deploy| RailwayService["Railway Web Service (Spring Boot 3)"]
+    RailwayService <-->|Internal Network (Port 3306)| RailwayMySQL[(Railway Managed MySQL)]
+    User((Users / Evaluators)) -->|HTTPS URL| RailwayService
+```
+
+### Why Railway is Best for CropLink:
+1. **1-Click MySQL:** No need to register for an external cloud database.
+2. **Zero Manual DB Configuration:** CropLink's `application.properties` automatically reads `${MYSQLHOST}`, `${MYSQLPORT}`, `${MYSQLDATABASE}`, `${MYSQLUSER}`, and `${MYSQLPASSWORD}` injected by Railway!
+3. **No Cold Starts:** The app responds instantly without the 50-second sleep delay found on free container tiers.
+4. **Automatic SSL / HTTPS Domain:** Railway provisions a free public domain (e.g. `croplink-production.up.railway.app`).
+
+---
+
+### Step 1: Provision MySQL on Railway
+1. Go to **[https://railway.app](https://railway.app)** and log in with your **GitHub account**.
+2. Click **+ New Project**.
+3. Select **Provision MySQL**.
+4. Railway will create a dedicated MySQL 8.0 database container in ~10 seconds.
+
+---
+
+### Step 2: Deploy the CropLink Application
+1. In the same Railway project canvas, click **+ Create** (or **+ New**).
+2. Select **GitHub Repo**.
+3. Choose your **`CropLink`** repository.
+4. Railway will automatically detect the [`railway.json`](railway.json) / [`Dockerfile`](Dockerfile) and begin building.
+
+---
+
+### Step 3: Link MySQL to CropLink
+1. Click on your **CropLink service** on the Railway canvas.
+2. Go to the **Variables** tab.
+3. Click **Add Variable Reference** (or **New Variable**):
+   - Click **Reference Variable** ➔ Select your **MySQL** service ➔ Select `MYSQLHOST`.
+   - Repeat to reference: `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`.
+   *(Or simply add a single variable `SPRING_DATASOURCE_URL` referencing `${{MySQL.DATABASE_URL}}`)*.
+4. Add one custom variable for security:
+   - `JWT_SECRET` = `CropLinkSecretKeyForJWTTokenGenerationThatIsLongEnough2024`
+
+---
+
+### Step 4: Generate Your Public Domain
+1. In your **CropLink** service, go to the **Settings** tab.
+2. Scroll to the **Networking** section.
+3. Click **Generate Domain** (or set a custom domain).
+4. Railway will assign an instant public HTTPS link (e.g. `https://croplink-production.up.railway.app`).
+
+### Step 5: Test and Enjoy
+Click your generated Railway domain!  
+Spring Boot will start, Hibernate will create all 15 tables automatically, `DataSeeder` will populate the demo catalog, and your direct farm-to-door delivery platform is live on the internet!
+
+---
+
+## ☁️ 10. Step-by-Step Render Cloud Deployment Guide (Alternative)
 
 Render allows you to host the Spring Boot Web Application for free using the included `Dockerfile` and `render.yaml`.
 
