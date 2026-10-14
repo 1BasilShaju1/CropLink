@@ -29,5 +29,5 @@ COPY --from=build /app/target/*.jar app.jar
 ENV PORT=8080
 EXPOSE 8080
 
-# Run Spring Boot binding dynamically to Render's $PORT
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]
+# Run Spring Boot with tuned JVM flags for low-memory cloud tiers (Render / Railway / Fly)
+ENTRYPOINT ["sh", "-c", "java -XX:+UseSerialGC -Xmx350m -Xss512k -Dserver.port=${PORT} -jar app.jar"]
