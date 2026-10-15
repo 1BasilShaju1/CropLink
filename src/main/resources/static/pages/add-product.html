@@ -128,14 +128,8 @@
 
                         <div class="form-group">
                             <label class="form-label" for="prod-category">Category *</label>
-                            <select id="prod-category" name="category" class="form-control" required>
-                                <option value="">Select Category</option>
-                                <option value="Vegetables">Vegetables</option>
-                                <option value="Fruits">Fruits</option>
-                                <option value="Grains & Pulses">Grains & Pulses</option>
-                                <option value="Greens & Herbs">Greens & Herbs</option>
-                                <option value="Dairy & Farm Fresh">Dairy & Farm Fresh</option>
-                                <option value="Spices & Condiments">Spices & Condiments</option>
+                            <select id="prod-category" name="categoryId" class="form-control" required>
+                                <option value="">Loading categories...</option>
                             </select>
                         </div>
                     </div>
@@ -155,12 +149,12 @@
                     <div class="grid grid-cols-3 gap-3">
                         <div class="form-group">
                             <label class="form-label" for="prod-price">Price per Unit (₹) *</label>
-                            <input type="number" id="prod-price" name="price" class="form-control" placeholder="e.g. 60" min="1" step="0.5" required>
+                            <input type="number" id="prod-price" name="price" class="form-control" placeholder="e.g. 60" min="0.1" step="0.5" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="prod-quantity">Quantity Available *</label>
-                            <input type="number" id="prod-quantity" name="quantity" class="form-control" placeholder="e.g. 500" min="1" required>
+                            <input type="number" id="prod-quantity" name="quantityAvailable" class="form-control" placeholder="e.g. 500" min="1" required>
                         </div>
 
                         <div class="form-group">
@@ -368,6 +362,25 @@
             renderPreviews();
         };
 
+        // Load real categories from API
+        async function loadCategories() {
+            const selectEl = document.getElementById('prod-category');
+            try {
+                const res = await Api.get('/api/categories/public');
+                const categories = res.data || [];
+                if (categories.length > 0) {
+                    selectEl.innerHTML = '<option value="">Select Category</option>' +
+                        categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                } else {
+                    selectEl.innerHTML = '<option value="">No categories available</option>';
+                }
+            } catch (e) {
+                console.error('Failed to load categories', e);
+                selectEl.innerHTML = '<option value="">Failed to load categories</option>';
+            }
+        }
+        loadCategories();
+
         // Form Submission
         const form = document.getElementById('add-product-form');
         const submitBtn = document.getElementById('submit-btn');
@@ -376,6 +389,14 @@
             e.preventDefault();
 
             const formData = new FormData(form);
+
+            // Handle delivery & payment options checkboxes properly
+            const deliveryOpts = Array.from(document.querySelectorAll('input[name="deliveryOptions"]:checked')).map(cb => cb.value).join(', ');
+            const paymentOpts = Array.from(document.querySelectorAll('input[name="paymentOptions"]:checked')).map(cb => cb.value).join(', ');
+            formData.delete('deliveryOptions');
+            formData.delete('paymentOptions');
+            formData.set('deliveryOptions', deliveryOpts || 'Farmer Delivery');
+            formData.set('paymentOptions', paymentOpts || 'Cash on Delivery');
 
             // Append selected images
             selectedFiles.forEach(file => {
@@ -386,19 +407,14 @@
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Listing Crop...';
 
             try {
-                try {
-                    await Api.postForm('/api/farmer/products', formData);
-                } catch (netErr) {
-                    console.info('Simulated crop addition fallback');
-                }
-
-                Toast.success('Crop harvest listed successfully on marketplace!');
+                const res = await Api.postForm('/api/farmer/products', formData);
+                Toast.success('Crop harvest listed successfully! It is now added to your harvests.');
                 setTimeout(() => {
                     window.location.href = '/pages/farmer-products.html';
-                }, 1000);
+                }, 1200);
 
             } catch (err) {
-                Toast.error(err.message || 'Failed to list product');
+                Toast.error(err.message || 'Failed to list product. Please check required fields.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publish Crop Listing';
             }

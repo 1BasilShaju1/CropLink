@@ -167,14 +167,14 @@ public class ProductService {
         List<String> imageUrls = images.stream().map(ProductImage::getImageUrl).collect(Collectors.toList());
         String primaryImageUrl = images.stream().filter(ProductImage::getIsPrimary).map(ProductImage::getImageUrl).findFirst()
                 .orElse(imageUrls.isEmpty() ? null : imageUrls.get(0));
-        FarmerProfile fp = farmerProfileRepository.findByUserId(p.getFarmer().getId()).orElse(null);
+        FarmerProfile fp = (p.getFarmer() != null) ? farmerProfileRepository.findByUserId(p.getFarmer().getId()).orElse(null) : null;
         return ProductResponse.builder()
                 .id(p.getId())
-                .farmerId(p.getFarmer().getId())
-                .farmerName(p.getFarmer().getFullName())
+                .farmerId(p.getFarmer() != null ? p.getFarmer().getId() : null)
+                .farmerName(p.getFarmer() != null ? p.getFarmer().getFullName() : "")
                 .farmName(fp != null ? fp.getFarmName() : "")
-                .categoryId(p.getCategory().getId())
-                .categoryName(p.getCategory().getName())
+                .categoryId(p.getCategory() != null ? p.getCategory().getId() : null)
+                .categoryName(p.getCategory() != null ? p.getCategory().getName() : "")
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())

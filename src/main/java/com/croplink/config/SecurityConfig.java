@@ -77,7 +77,7 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/farmer/**").hasRole("FARMER")
-                .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+                .requestMatchers("/api/customer/**").authenticated()
                 .requestMatchers("/api/delivery/**").hasRole("DELIVERY_PARTNER")
                 .anyRequest().authenticated()
             )

@@ -110,6 +110,23 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif;min-height:100vh}
 <script src="/js/api.js"></script>
 <script src="/js/effects.js"></script>
 <script>
+function showToast(msg, type = 'info') {
+  if (window.Toast) {
+    if (type === 'success' && Toast.success) return Toast.success(msg);
+    if (type === 'error' && Toast.error) return Toast.error(msg);
+    if (type === 'warning' && Toast.warning) return Toast.warning(msg);
+    if (Toast.info) return Toast.info(msg);
+  }
+  const t = document.getElementById('toast');
+  if (t) {
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  } else {
+    alert(msg);
+  }
+}
+
 if (!Api.isLoggedIn()) window.location.href = '/pages/login.html';
 
 const STEPS = [

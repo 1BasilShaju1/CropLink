@@ -200,7 +200,7 @@
     <script src="/js/api.js"></script>
     <script src="/js/effects.js"></script>
     <script>
-        if (!Api.isLoggedIn() || Api.getUserRole() !== 'CUSTOMER') {
+        if (!Api.isLoggedIn()) {
             window.location.href = '/pages/login.html';
         }
 
@@ -215,7 +215,7 @@
                 const orderRes = await Api.get('/api/customer/orders?page=0&size=5');
                 const orders = (orderRes.data && orderRes.data.content) ? orderRes.data.content : (Array.isArray(orderRes.data) ? orderRes.data : []);
                 
-                document.getElementById('stat-total-orders').textContent = orderRes.data.totalElements || orders.length;
+                document.getElementById('stat-total-orders').textContent = orderRes.data?.totalElements ?? orders.length;
                 const active = orders.filter(o => ['PENDING', 'ACCEPTED', 'PACKED', 'OUT_FOR_DELIVERY'].includes(o.orderStatus)).length;
                 const delivered = orders.filter(o => o.orderStatus === 'DELIVERED').length;
                 document.getElementById('stat-active-orders').textContent = active;

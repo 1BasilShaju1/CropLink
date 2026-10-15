@@ -340,39 +340,70 @@
 
         async function loadProductDetails() {
             try {
-                const res = await Api.get(`/api/products/${productId}`);
+                const res = await Api.get(`/api/products/public/${productId}`);
                 if (res && res.data) {
                     currentProduct = res.data;
                 }
             } catch (e) {
-                // Keep rich fallback
+                console.warn('Could not fetch from server, using display fallback', e);
             }
 
             // Bind values
-            document.getElementById('crumb-product-name').textContent = currentProduct.name;
-            document.getElementById('product-title').textContent = currentProduct.name;
-            document.getElementById('farmer-name').textContent = currentProduct.farmerName || 'Verified Farm';
+            document.getElementById('crumb-product-name').textContent = currentProduct.name || 'Produce';
+            document.getElementById('product-title').textContent = currentProduct.name || 'Fresh Crop';
+            document.getElementById('farmer-name').textContent = currentProduct.farmerName ? `${currentProduct.farmerName} ${currentProduct.farmName ? '(' + currentProduct.farmName + ')' : ''}` : 'Verified Local Farmer';
             document.getElementById('product-price').textContent = '₹' + currentProduct.price;
             document.getElementById('product-unit').textContent = '/ ' + (currentProduct.unit || 'kg');
-            document.getElementById('product-stock').textContent = (currentProduct.quantity || currentProduct.stock || 150) + ' ' + (currentProduct.unit || 'kg') + ' in stock';
-            document.getElementById('product-description').textContent = currentProduct.description || '';
-            document.getElementById('attr-grade').textContent = currentProduct.qualityGrade || 'Grade A';
-            document.getElementById('attr-ripeness').textContent = currentProduct.ripenessLevel || 'Ready to Eat';
-            document.getElementById('attr-harvest').textContent = currentProduct.harvestDate || 'Harvested Today';
-            document.getElementById('badge-organic').textContent = currentProduct.organicStatus || '100% Organic';
+            const stockQty = currentProduct.quantityAvailable ?? currentProduct.stock ?? 0;
+            document.getElementById('product-stock').textContent = stockQty + ' ' + (currentProduct.unit || 'kg') + ' available';
+            document.getElementById('product-description').textContent = currentProduct.description || 'Pure farm fresh harvest nurtured with organic care.';
+            document.getElementById('attr-grade').textContent = currentProduct.qualityGrade || 'Standard';
+            document.getElementById('attr-ripeness').textContent = currentProduct.ripenessLevel || 'Ripe';
+            document.getElementById('attr-harvest').textContent = currentProduct.harvestDate || 'Harvested Fresh';
+            document.getElementById('badge-organic').textContent = currentProduct.organicStatus || 'Natural';
 
             // Gallery
             const mainImg = document.getElementById('main-image');
             const thumbsList = document.getElementById('thumbs-list');
-            const images = (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images : [currentProduct.imageUrl || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800'];
+            const defaultFallback = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800';
+            const images = (currentProduct.imageUrls && currentProduct.imageUrls.length > 0)
+                ? currentProduct.imageUrls
+                : [currentProduct.primaryImageUrl || currentProduct.imageUrl || defaultFallback];
 
             mainImg.src = images[0];
+            mainImg.onerror = () => { mainImg.src = defaultFallback; };
 
             thumbsList.innerHTML = images.map((imgSrc, idx) => `
                 <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchImage('${imgSrc}', this)">
-                    <img src="${imgSrc}" alt="Crop Thumbnail">
+                    <img src="${imgSrc}" onerror="this.src='${defaultFallback}'" alt="Crop Thumbnail">
                 </div>
             `).join('');
+
+            loadReviews();
+        }
+
+        async function loadReviews() {
+            try {
+                const res = await Api.get(`/api/products/public/${productId}/reviews`);
+                const reviews = res.data || [];
+                const reviewContainer = document.getElementById('reviews-list');
+                if (reviews.length > 0) {
+                    reviewContainer.innerHTML = reviews.map(r => `
+                        <div class="card fade-in-up" style="margin-bottom:1rem;">
+                            <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
+                                <strong>${r.customerName || 'Customer'}</strong>
+                                <div class="star-rating">
+                                    ${Array.from({length: r.rating || 5}).map(() => '<i class="fa-solid fa-star active" style="color:var(--accent);"></i>').join('')}
+                                </div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                "${r.comment || ''}"
+                            </p>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">${r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN') : 'Recently'}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {}
         }
 
         window.switchImage = (src, el) => {

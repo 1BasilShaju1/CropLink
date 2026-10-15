@@ -91,7 +91,7 @@
             <div class="grid grid-cols-4 gap-3" style="margin-bottom: 2rem;">
                 <div class="stats-card">
                     <div>
-                        <div class="stats-value" id="stat-total-products">12</div>
+                        <div class="stats-value" id="stat-total-products">0</div>
                         <div class="stats-label">Total Listed Crops</div>
                     </div>
                     <div class="stats-icon-wrap"><i class="fa-solid fa-seedling"></i></div>
@@ -99,7 +99,7 @@
 
                 <div class="stats-card">
                     <div>
-                        <div class="stats-value" id="stat-active-products">9</div>
+                        <div class="stats-value" id="stat-active-products">0</div>
                         <div class="stats-label">In-Stock Crops</div>
                     </div>
                     <div class="stats-icon-wrap gold"><i class="fa-solid fa-cubes-stacked"></i></div>
@@ -107,7 +107,7 @@
 
                 <div class="stats-card">
                     <div>
-                        <div class="stats-value" id="stat-pending-orders">4</div>
+                        <div class="stats-value" id="stat-pending-orders">0</div>
                         <div class="stats-label">Pending Orders</div>
                     </div>
                     <div class="stats-icon-wrap blue"><i class="fa-solid fa-clipboard-list"></i></div>
@@ -115,8 +115,8 @@
 
                 <div class="stats-card">
                     <div>
-                        <div class="stats-value" id="stat-total-revenue">₹48,250</div>
-                        <div class="stats-label">Total Revenue</div>
+                        <div class="stats-value" id="stat-total-revenue">₹0</div>
+                        <div class="stats-label">Delivered Revenue</div>
                     </div>
                     <div class="stats-icon-wrap purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                 </div>
@@ -196,107 +196,99 @@
     <script src="/js/effects.js"></script>
     <script>
         // Auth Guard: Only FARMER allowed
-        if (!Api.requireAuth(['FARMER'])) {
-            // Handled in Api.requireAuth
-        }
+        if (!Api.requireAuth(['FARMER'])) {}
 
         const user = Api.getUser() || { fullName: 'Farmer' };
-        document.getElementById('farmer-name-display').textContent = user.fullName;
-
-        const demoOrders = [
-            {
-                id: 'ORD-9021',
-                customerName: 'Priya Sharma',
-                items: 'Vine Tomatoes (5kg), Fresh Palak (3 bunches)',
-                amount: 315,
-                date: '2026-10-14 09:30 AM',
-                status: 'PENDING'
-            },
-            {
-                id: 'ORD-9018',
-                customerName: 'Anand Verma',
-                items: 'Alphonso Mangoes (2 dozen)',
-                amount: 900,
-                date: '2026-10-13 04:15 PM',
-                status: 'ACCEPTED'
-            },
-            {
-                id: 'ORD-9012',
-                customerName: 'Meera Deshmukh',
-                items: 'Basmati Rice (10kg)',
-                amount: 1100,
-                date: '2026-10-13 11:20 AM',
-                status: 'PACKED'
-            },
-            {
-                id: 'ORD-8998',
-                customerName: 'Rajesh Nair',
-                items: 'Organic Bell Peppers (3kg)',
-                amount: 240,
-                date: '2026-10-12 02:45 PM',
-                status: 'DELIVERED'
-            }
-        ];
+        document.getElementById('farmer-name-display').textContent = user.fullName || 'Farmer';
 
         async function loadFarmerData() {
             const tbody = document.getElementById('farmer-orders-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fa-solid fa-spinner fa-spin"></i> Loading farmer records...</td></tr>';
 
-            let orders = demoOrders;
+            // 1. Fetch products for accurate stats
             try {
-                const res = await Api.get('/api/farmer/orders');
-                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    orders = res.data;
-                }
-            } catch (e) {
-                // Keep demo fallback
+                const prodRes = await Api.get('/api/farmer/products');
+                const products = Array.isArray(prodRes.data) ? prodRes.data : [];
+                document.getElementById('stat-total-products').textContent = products.length;
+                const inStock = products.filter(p => p.quantityAvailable > 0 && p.availability !== 'OUT_OF_STOCK').length;
+                document.getElementById('stat-active-products').textContent = inStock;
+            } catch (err) {
+                console.error('Failed to load products stats:', err);
             }
 
-            // Update stats
-            document.getElementById('stat-pending-orders').textContent = orders.filter(o => o.status === 'PENDING').length || 4;
+            // 2. Fetch orders
+            let orders = [];
+            try {
+                const res = await Api.get('/api/farmer/orders?page=0&size=50');
+                orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+            } catch (e) {
+                console.error('Failed to load orders:', e);
+            }
 
-            tbody.innerHTML = orders.map(ord => `
+            // Update order stats
+            const pending = orders.filter(o => o.orderStatus === 'PENDING').length;
+            document.getElementById('stat-pending-orders').textContent = pending;
+
+            const deliveredRev = orders
+                .filter(o => o.orderStatus === 'DELIVERED')
+                .reduce((sum, o) => sum + (Number(o.finalAmount) || 0), 0);
+            document.getElementById('stat-total-revenue').textContent = '₹' + deliveredRev.toLocaleString('en-IN');
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#888">No orders received yet. When customers order your fresh produce, they will appear here!</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(ord => {
+                const itemsText = ord.orderItems && ord.orderItems.length
+                    ? ord.orderItems.map(i => `${i.productName} (${i.quantity})`).join(', ')
+                    : 'Produce';
+                const dateText = ord.orderDate ? new Date(ord.orderDate).toLocaleString('en-IN') : '—';
+                const status = ord.orderStatus || 'PENDING';
+
+                return `
                 <tr>
                     <td><strong>#${ord.id}</strong></td>
                     <td>${ord.customerName || 'Customer'}</td>
-                    <td>${ord.items || 'Fresh Produce'}</td>
-                    <td><strong>₹${ord.amount}</strong></td>
-                    <td>${ord.date}</td>
+                    <td style="max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${itemsText}">
+                        ${itemsText}
+                    </td>
+                    <td><strong>₹${ord.finalAmount}</strong></td>
+                    <td>${dateText}</td>
                     <td>
-                        <span class="badge badge-${(ord.status || 'pending').toLowerCase()}">
-                            ${ord.status}
+                        <span class="badge badge-${status.toLowerCase()}">
+                            ${status.replace(/_/g, ' ')}
                         </span>
                     </td>
                     <td>
-                        <div class="flex gap-1">
-                            ${ord.status === 'PENDING' ? `
-                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${ord.id}', 'ACCEPTED')">Accept</button>
+                        <div class="flex gap-1" style="flex-wrap:wrap">
+                            ${status === 'PENDING' ? `
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus(${ord.id}, 'ACCEPTED')">Accept</button>
+                                <button class="btn btn-outline btn-sm" style="color:#c62828;border-color:#ef9a9a" onclick="updateOrderStatus(${ord.id}, 'CANCELLED')">Reject</button>
                             ` : ''}
-                            ${ord.status === 'ACCEPTED' ? `
-                                <button class="btn btn-gold btn-sm" onclick="updateOrderStatus('${ord.id}', 'PACKED')">Pack</button>
+                            ${status === 'ACCEPTED' ? `
+                                <button class="btn btn-gold btn-sm" onclick="updateOrderStatus(${ord.id}, 'PACKED')">Mark Packed</button>
                             ` : ''}
-                            ${ord.status === 'PACKED' ? `
-                                <button class="btn btn-outline btn-sm" onclick="updateOrderStatus('${ord.id}', 'OUT_FOR_DELIVERY')">Dispatch</button>
+                            ${status === 'PACKED' ? `
+                                <button class="btn btn-outline btn-sm" onclick="updateOrderStatus(${ord.id}, 'OUT_FOR_DELIVERY')">Dispatch</button>
                             ` : ''}
-                            <button class="btn btn-secondary btn-sm" onclick="Toast.info('Viewing invoice for #${ord.id}')" title="Invoice">
-                                <i class="fa-solid fa-file-invoice"></i>
-                            </button>
+                            ${status === 'OUT_FOR_DELIVERY' ? `
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus(${ord.id}, 'DELIVERED')">Delivered</button>
+                            ` : ''}
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         async function updateOrderStatus(orderId, newStatus) {
             try {
-                await Api.put(`/api/farmer/orders/${orderId}/status`, { status: newStatus });
+                await Api.patch(`/api/farmer/orders/${orderId}/status`, { status: newStatus });
                 Toast.success(`Order #${orderId} marked as ${newStatus}`);
+                loadFarmerData();
             } catch (e) {
-                // Simulate local state update
-                const ord = demoOrders.find(o => o.id === orderId);
-                if (ord) ord.status = newStatus;
-                Toast.success(`Order #${orderId} status updated to ${newStatus}`);
+                Toast.error(e.message || 'Failed to update order status');
             }
-            loadFarmerData();
         }
 
         document.addEventListener('DOMContentLoaded', loadFarmerData);

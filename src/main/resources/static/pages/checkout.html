@@ -304,61 +304,65 @@
                 return;
             }
 
-            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
-            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const rawDeliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            const rawPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const notes = document.getElementById('order-notes').value.trim();
 
-            const orderPayload = {
-                items: cart,
-                totalAmount: subtotal + deliveryCost,
-                deliveryMethod,
-                paymentMethod,
-                shippingAddress: {
-                    fullName: shipName,
-                    phone: shipPhone,
-                    address: shipAddress,
-                    city: shipCity,
-                    state: shipState,
-                    pincode: shipPincode
-                },
-                notes
-            };
+            const deliveryMethod = rawDeliveryMethod === 'FARM_PICKUP' ? 'Farm Pickup' : (rawDeliveryMethod === 'FARMER_DIRECT' ? 'Farmer Delivery' : 'CropLink Partner Delivery');
+            const paymentMethod = rawPaymentMethod === 'COD' ? 'Cash on Delivery' : (rawPaymentMethod === 'UPI' ? 'UPI' : 'Card');
+            const fullAddress = `${shipName} (${shipPhone}), ${shipAddress}, ${shipCity}, ${shipState} - ${shipPincode}${notes ? ' [Note: ' + notes + ']' : ''}`;
 
             const btn = document.getElementById('place-order-btn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Confirming Order...';
 
-            let generatedOrderId = 'CL-' + Math.floor(100000 + Math.random() * 900000);
-
             try {
+                // 1. Sync local cart items into backend database cart
                 try {
-                    const res = await Api.post('/api/orders', orderPayload);
-                    if (res && res.data && res.data.id) {
-                        generatedOrderId = 'CL-' + res.data.id;
-                    }
-                } catch (netErr) {
-                    console.info('Simulated order placement fallback');
+                    await Api.delete('/api/customer/cart');
+                } catch(e) {}
+
+                for (const item of cart) {
+                    await Api.post('/api/customer/cart', {
+                        productId: item.id,
+                        quantity: item.quantity
+                    });
                 }
 
-                // Store order in session for receipt display
+                // 2. Place order via official backend endpoint
+                const orderPayload = {
+                    deliveryMethod,
+                    paymentMethod,
+                    deliveryAddress: fullAddress
+                };
+
+                const res = await Api.post('/api/customer/orders', orderPayload);
+                const orderData = res.data || {};
+                const generatedOrderId = orderData.id || ('CL-' + Math.floor(100000 + Math.random() * 900000));
+
+                // 3. Store order in session for receipt display
                 sessionStorage.setItem('last_croplink_order', JSON.stringify({
                     orderId: generatedOrderId,
                     items: cart,
                     total: subtotal + deliveryCost,
-                    address: `${shipAddress}, ${shipCity}, ${shipState} - ${shipPincode}`,
+                    address: fullAddress,
                     deliveryMethod,
                     paymentMethod,
                     date: new Date().toLocaleString()
                 }));
 
-                // Clear Cart
+                // 4. Clear local cart
                 Api.cart.clearCart();
 
-                // Redirect to success page
-                window.location.href = `/pages/order-success.html?orderId=${generatedOrderId}`;
+                // 5. Redirect to success page
+                Toast.success('Order placed successfully!');
+                setTimeout(() => {
+                    window.location.href = `/pages/order-success.html?orderId=${generatedOrderId}`;
+                }, 800);
 
             } catch (err) {
-                Toast.error(err.message || 'Failed to place order');
+                console.error('Order placement failed:', err);
+                Toast.error(err.message || 'Failed to place order. Please check stock or login session.');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-lock"></i> Place Secure Order';
             }

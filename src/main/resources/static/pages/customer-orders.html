@@ -161,6 +161,7 @@
             <form id="order-review-form">
                 <div class="modal-body">
                     <input type="hidden" id="rev-order-id">
+                    <input type="hidden" id="rev-product-id">
                     <div class="form-group">
                         <label class="form-label">How fresh was the produce?</label>
                         <div class="interactive-stars flex" id="modal-star-selector" style="font-size: 1.75rem;">
@@ -190,53 +191,32 @@
         // Auth Guard
         Api.requireAuth(['CUSTOMER', 'FARMER', 'ADMIN', 'DELIVERY_PARTNER']);
 
-        const initialOrders = [
-            {
-                id: 'CL-948210',
-                date: '2026-10-14 09:15 AM',
-                status: 'OUT_FOR_DELIVERY',
-                total: 210.00,
-                deliveryMethod: 'CropLink Express Partner',
-                items: [
-                    { name: 'Organic Vine Tomatoes', qty: '3 kg', price: 135, img: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200' },
-                    { name: 'Crisp Palak (Spinach)', qty: '2 bunches', price: 60, img: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=200' }
-                ]
-            },
-            {
-                id: 'CL-921475',
-                date: '2026-10-13 03:40 PM',
-                status: 'PACKED',
-                total: 450.00,
-                deliveryMethod: 'Farmer Direct Delivery',
-                items: [
-                    { name: 'Alphonso Mangoes', qty: '1 dozen', price: 450, img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=200' }
-                ]
-            },
-            {
-                id: 'CL-887412',
-                date: '2026-10-09 11:20 AM',
-                status: 'DELIVERED',
-                total: 550.00,
-                deliveryMethod: 'CropLink Express Partner',
-                items: [
-                    { name: 'Basmati Rice', qty: '5 kg', price: 550, img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200' }
-                ]
-            }
-        ];
-
-        let customerOrders = initialOrders;
+        let customerOrders = [];
         let activeFilter = 'ALL';
 
         async function fetchOrders() {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Loading your farm orders...</p></div>';
+
             try {
-                const res = await Api.get('/api/orders/my-orders');
-                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    customerOrders = res.data;
-                }
+                const res = await Api.get('/api/customer/orders?page=0&size=50');
+                customerOrders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
             } catch (err) {
-                // Keep local orders
+                console.warn('Failed to load orders from API:', err);
+                customerOrders = [];
             }
+            updateFilterCounts();
             renderOrders();
+        }
+
+        function updateFilterCounts() {
+            const total = customerOrders.length;
+            const active = customerOrders.filter(o => o.orderStatus !== 'DELIVERED' && o.orderStatus !== 'CANCELLED').length;
+            const delivered = customerOrders.filter(o => o.orderStatus === 'DELIVERED').length;
+            const chips = document.querySelectorAll('.order-filter-btn');
+            if (chips[0]) chips[0].textContent = `All Orders (${total})`;
+            if (chips[1]) chips[1].textContent = `In Transit / Active (${active})`;
+            if (chips[2]) chips[2].textContent = `Delivered (${delivered})`;
         }
 
         const stages = ['PENDING', 'ACCEPTED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
@@ -253,9 +233,10 @@
             const container = document.getElementById('orders-container');
 
             const filtered = customerOrders.filter(ord => {
+                const st = ord.orderStatus || ord.status || 'PENDING';
                 if (activeFilter === 'ALL') return true;
-                if (activeFilter === 'ACTIVE') return ord.status !== 'DELIVERED' && ord.status !== 'CANCELLED';
-                return ord.status === activeFilter;
+                if (activeFilter === 'ACTIVE') return st !== 'DELIVERED' && st !== 'CANCELLED';
+                return st === activeFilter;
             });
 
             if (filtered.length === 0) {
@@ -264,27 +245,37 @@
                         <i class="fa-solid fa-box-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
                         <h3>No orders found</h3>
                         <p style="color: var(--text-muted);">You have no orders matching this filter.</p>
+                        <a href="/pages/products.html" class="btn btn-primary btn-sm" style="margin-top:1rem; display:inline-block;">
+                            <i class="fa-solid fa-basket-shopping"></i> Browse Fresh Crops
+                        </a>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = filtered.map(ord => `
+            container.innerHTML = filtered.map(ord => {
+                const status = ord.orderStatus || ord.status || 'PENDING';
+                const finalAmount = Number(ord.finalAmount || ord.total || 0).toFixed(2);
+                const orderDate = ord.orderDate ? new Date(ord.orderDate).toLocaleString('en-IN') : (ord.date || '—');
+                const items = ord.orderItems || ord.items || [];
+                const firstProductId = items.length > 0 ? (items[0].productId || items[0].id) : null;
+
+                return `
                 <div class="order-card fade-in-up">
                     <div class="order-card-header">
                         <div class="flex items-center gap-3">
                             <div>
                                 <strong style="font-size: 1.1rem; color: var(--text-primary);">#${ord.id}</strong>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">${ord.date}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">${orderDate}</div>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <span class="badge badge-${ord.status.toLowerCase()}">
-                                ${ord.status.replace(/_/g, ' ')}
+                            <span class="badge badge-${status.toLowerCase()}">
+                                ${status.replace(/_/g, ' ')}
                             </span>
                             <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary-dark);">
-                                ₹${ord.total.toFixed(2)}
+                                ₹${finalAmount}
                             </div>
                         </div>
                     </div>
@@ -292,23 +283,23 @@
                     <div style="padding: 1.5rem;">
                         <!-- Stepper Tracker -->
                         <div class="order-stepper">
-                            <div class="step-node ${getStepState(ord.status, 'PENDING')}">
+                            <div class="step-node ${getStepState(status, 'PENDING')}">
                                 <div class="step-icon-circle"><i class="fa-solid fa-file-invoice"></i></div>
                                 <span class="step-label">Ordered</span>
                             </div>
-                            <div class="step-node ${getStepState(ord.status, 'ACCEPTED')}">
+                            <div class="step-node ${getStepState(status, 'ACCEPTED')}">
                                 <div class="step-icon-circle"><i class="fa-solid fa-circle-check"></i></div>
                                 <span class="step-label">Kisan Confirmed</span>
                             </div>
-                            <div class="step-node ${getStepState(ord.status, 'PACKED')}">
+                            <div class="step-node ${getStepState(status, 'PACKED')}">
                                 <div class="step-icon-circle"><i class="fa-solid fa-boxes-packing"></i></div>
                                 <span class="step-label">Fresh Packed</span>
                             </div>
-                            <div class="step-node ${getStepState(ord.status, 'OUT_FOR_DELIVERY')}">
+                            <div class="step-node ${getStepState(status, 'OUT_FOR_DELIVERY')}">
                                 <div class="step-icon-circle"><i class="fa-solid fa-truck-fast"></i></div>
                                 <span class="step-label">On Route</span>
                             </div>
-                            <div class="step-node ${getStepState(ord.status, 'DELIVERED')}">
+                            <div class="step-node ${getStepState(status, 'DELIVERED')}">
                                 <div class="step-icon-circle"><i class="fa-solid fa-house-circle-check"></i></div>
                                 <span class="step-label">Delivered</span>
                             </div>
@@ -317,16 +308,16 @@
                         <!-- Item row -->
                         <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 1rem;">
                             <div class="flex flex-col gap-2">
-                                ${ord.items.map(item => `
+                                ${items.map(item => `
                                     <div class="flex items-center justify-between" style="font-size: 0.9rem;">
                                         <div class="flex items-center gap-2">
-                                            <img src="${item.img || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100'}" style="width: 42px; height: 42px; border-radius: 6px; object-fit: cover;">
+                                            <i class="fa-solid fa-seedling" style="color:var(--primary); font-size:1.2rem;"></i>
                                             <div>
-                                                <strong>${item.name}</strong>
-                                                <div style="font-size: 0.8rem; color: var(--text-muted);">${item.qty}</div>
+                                                <strong>${item.productName || item.name}</strong>
+                                                <div style="font-size: 0.8rem; color: var(--text-muted);">Qty: ${item.quantity || item.qty}</div>
                                             </div>
                                         </div>
-                                        <strong>₹${item.price.toFixed(2)}</strong>
+                                        <strong>₹${Number(item.subtotal || (item.unitPrice * item.quantity) || item.price || 0).toFixed(2)}</strong>
                                     </div>
                                 `).join('')}
                             </div>
@@ -335,33 +326,32 @@
                         <!-- Card Footer actions -->
                         <div class="flex items-center justify-between" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
                             <div style="font-size: 0.85rem; color: var(--text-muted);">
-                                <i class="fa-solid fa-truck-ramp-box" style="color:var(--primary); margin-right: 4px;"></i> Mode: <strong>${ord.deliveryMethod}</strong>
+                                <i class="fa-solid fa-truck-ramp-box" style="color:var(--primary); margin-right: 4px;"></i> Mode: <strong>${ord.deliveryMethod || 'Doorstep Delivery'}</strong>
+                                ${ord.deliveryAddress ? ` &bull; <i class="fa-solid fa-location-dot"></i> ${ord.deliveryAddress}` : ''}
                             </div>
                             <div class="flex gap-2">
-                                ${ord.status === 'DELIVERED' ? `
-                                    <button class="btn btn-gold btn-sm" onclick="openReviewModal('${ord.id}')">
+                                ${status === 'DELIVERED' && firstProductId ? `
+                                    <button class="btn btn-gold btn-sm" onclick="openReviewModal(${ord.id}, ${firstProductId})">
                                         <i class="fa-solid fa-star"></i> Write Review
                                     </button>
                                 ` : ''}
-                                <button class="btn btn-secondary btn-sm" onclick="Toast.info('Dispatching delivery driver live coordinate ping...');">
+                                <button class="btn btn-secondary btn-sm" onclick="Toast.info('Delivery coordinate status: On schedule');">
                                     <i class="fa-solid fa-location-crosshairs"></i> Live GPS
-                                </button>
-                                <button class="btn btn-outline btn-sm" onclick="Toast.info('Downloading official Tax Invoice PDF for #${ord.id}');">
-                                    <i class="fa-solid fa-file-arrow-down"></i> Invoice
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // Review Modal Handlers
         const reviewModal = document.getElementById('review-modal');
         let selectedStars = 5;
 
-        function openReviewModal(orderId) {
+        function openReviewModal(orderId, productId) {
             document.getElementById('rev-order-id').value = orderId;
+            document.getElementById('rev-product-id').value = productId || '';
             reviewModal.classList.add('active');
         }
 
@@ -381,15 +371,22 @@
 
         document.getElementById('order-review-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const orderId = document.getElementById('rev-order-id').value;
+            const orderId = Number(document.getElementById('rev-order-id').value);
+            const productId = Number(document.getElementById('rev-product-id').value);
             const comment = document.getElementById('rev-comment').value.trim();
 
-            try {
-                await Api.post('/api/reviews', { orderId, rating: selectedStars, comment });
-            } catch (err) {}
+            if (!productId) {
+                Toast.error('Product details missing for review');
+                return;
+            }
 
-            closeReviewModal();
-            Toast.success('Thank you! Your feedback helps our farming community thrive.');
+            try {
+                await Api.post('/api/customer/reviews', { productId, orderId, rating: selectedStars, comment });
+                Toast.success('Thank you! Your feedback helps our farming community thrive.');
+                closeReviewModal();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to submit review');
+            }
         });
 
         // Filter button clicks

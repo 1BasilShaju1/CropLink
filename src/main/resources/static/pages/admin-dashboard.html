@@ -181,6 +181,24 @@
 <script src="/js/api.js"></script>
 <script src="/js/effects.js"></script>
 <script>
+function showToast(msg, type = 'info') {
+  if (window.Toast) {
+    if (type === 'success' && Toast.success) return Toast.success(msg);
+    if (type === 'error' && Toast.error) return Toast.error(msg);
+    if (type === 'warning' && Toast.warning) return Toast.warning(msg);
+    if (Toast.info) return Toast.info(msg);
+    if (Toast.show) return Toast.show(msg, type);
+  }
+  const t = document.getElementById('toast');
+  if (t) {
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  } else {
+    console.log(`[${type}] ${msg}`);
+  }
+}
+
 // Auth guard
 if (!Api.isLoggedIn() || Api.getUserRole() !== 'ADMIN') {
   window.location.href = '/pages/login.html';
@@ -201,38 +219,39 @@ function showTab(tab, el) {
   else if (tab === 'products') loadProducts();
   else if (tab === 'orders') loadOrders();
   else if (tab === 'categories') loadCategories();
+  else if (tab === 'dashboard') loadStats();
 }
 
 async function loadStats() {
   try {
     const res = await Api.get('/api/admin/dashboard');
-    const s = res.data;
-    document.getElementById('s-users').textContent = s.totalUsers;
-    document.getElementById('s-farmers').textContent = s.totalFarmers;
-    document.getElementById('s-customers').textContent = s.totalCustomers;
-    document.getElementById('s-products').textContent = s.totalProducts;
-    document.getElementById('s-orders').textContent = s.totalOrders;
+    const s = res.data || {};
+    document.getElementById('s-users').textContent = s.totalUsers ?? 0;
+    document.getElementById('s-farmers').textContent = s.totalFarmers ?? 0;
+    document.getElementById('s-customers').textContent = s.totalCustomers ?? 0;
+    document.getElementById('s-products').textContent = s.totalProducts ?? 0;
+    document.getElementById('s-orders').textContent = s.totalOrders ?? 0;
     document.getElementById('s-revenue').textContent = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('s-active-products').textContent = s.activeProducts;
-    document.getElementById('s-pending-orders').textContent = s.pendingOrders;
-  } catch(e) { showToast('Failed to load stats', 'error'); }
+    document.getElementById('s-active-products').textContent = s.activeProducts ?? 0;
+    document.getElementById('s-pending-orders').textContent = s.pendingOrders ?? 0;
+  } catch(e) { showToast('Failed to load stats: ' + (e.message || ''), 'error'); }
 }
 
 async function loadUsers() {
   try {
     const res = await Api.get('/api/admin/users?page=0&size=100');
-    allUsers = res.data.content || [];
+    allUsers = res.data?.content || (Array.isArray(res.data) ? res.data : []);
     renderUsers(allUsers);
-  } catch(e) { showToast('Failed to load users', 'error'); }
+  } catch(e) { showToast('Failed to load users: ' + (e.message || ''), 'error'); }
 }
 
 function renderUsers(users) {
   const tbody = document.getElementById('users-tbody');
-  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
+  if (!users || !users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
   tbody.innerHTML = users.map(u => `
     <tr>
       <td>#${u.id}</td>
-      <td>${u.fullName}</td>
+      <td><strong>${u.fullName || ''}</strong></td>
       <td>${u.email}</td>
       <td><span class="badge badge-${u.role}">${u.role}</span></td>
       <td><span class="badge badge-${u.status}">${u.status}</span></td>
@@ -244,7 +263,7 @@ function renderUsers(users) {
 
 function filterUsers() {
   const q = document.getElementById('user-search').value.toLowerCase();
-  renderUsers(allUsers.filter(u => u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+  renderUsers(allUsers.filter(u => (u.fullName && u.fullName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q))));
 }
 
 async function updateUserStatus(userId, status) {
@@ -252,79 +271,104 @@ async function updateUserStatus(userId, status) {
     await Api.patch(`/api/admin/users/${userId}/status`, { status });
     showToast('User status updated to ' + status, 'success');
     loadUsers();
+    loadStats();
   } catch(e) { showToast(e.message, 'error'); }
 }
 
 async function loadProducts() {
   const status = document.getElementById('product-status-filter')?.value || '';
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading products...</td></tr>';
   try {
     const res = await Api.get(`/api/admin/products?page=0&size=100`);
-    let products = res.data.content || [];
+    let products = res.data?.content || (Array.isArray(res.data) ? res.data : []);
     if (status) products = products.filter(p => p.productStatus === status);
-    const tbody = document.getElementById('products-tbody');
-    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products</td></tr>'; return; }
+    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products found</td></tr>'; return; }
     tbody.innerHTML = products.map(p => `
       <tr>
         <td>#${p.id}</td>
-        <td>${p.name}</td>
-        <td>${p.farmerName}</td>
-        <td>${p.categoryName}</td>
-        <td>₹${p.price}</td>
+        <td><strong>${p.name || ''}</strong></td>
+        <td>${p.farmerName || 'Farmer #' + p.farmerId}</td>
+        <td>${p.categoryName || 'General'}</td>
+        <td>₹${p.price} / ${p.unit || 'kg'}</td>
         <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
         <td style="display:flex;gap:6px;flex-wrap:wrap">
-          ${p.productStatus === 'PENDING_APPROVAL' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button><button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>` : ''}
-          ${p.productStatus === 'ACTIVE' ? `<button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>` : ''}
-          ${p.productStatus === 'INACTIVE' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>` : ''}
+          ${p.productStatus === 'PENDING_APPROVAL' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button>
+            <button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>
+          ` : ''}
+          ${p.productStatus === 'ACTIVE' ? `
+            <button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>
+          ` : ''}
+          ${p.productStatus === 'INACTIVE' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>
+          ` : ''}
+          ${p.productStatus === 'REJECTED' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Re-Approve</button>
+          ` : ''}
         </td>
       </tr>`).join('');
-  } catch(e) { showToast('Failed to load products', 'error'); }
+  } catch(e) {
+    console.error(e);
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load products: ' + (e.message || '') + '</td></tr>';
+    showToast('Failed to load products: ' + (e.message || ''), 'error');
+  }
 }
 
 async function updateProductStatus(productId, status) {
   try {
     await Api.patch(`/api/admin/products/${productId}/status`, { status });
-    showToast('Product status updated', 'success');
+    showToast('Product status updated to ' + status, 'success');
     loadProducts();
+    loadStats();
   } catch(e) { showToast(e.message, 'error'); }
 }
 
 async function loadOrders() {
+  const tbody = document.getElementById('orders-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading orders...</td></tr>';
   try {
     const res = await Api.get('/api/admin/orders?page=0&size=100');
-    const orders = res.data.content || [];
-    const tbody = document.getElementById('orders-tbody');
-    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders</td></tr>'; return; }
+    const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders found</td></tr>'; return; }
     tbody.innerHTML = orders.map(o => `
       <tr>
-        <td>#${o.id}</td>
-        <td>${o.customerName}</td>
-        <td>${o.farmerName}</td>
-        <td>₹${o.finalAmount}</td>
-        <td>${o.deliveryMethod}</td>
+        <td><strong>#${o.id}</strong></td>
+        <td>${o.customerName || 'Customer #' + o.customerId}</td>
+        <td>${o.farmerName || 'Farmer #' + o.farmerId}</td>
+        <td><strong>₹${o.finalAmount}</strong></td>
+        <td>${o.deliveryMethod || 'Standard'}</td>
         <td><span class="badge badge-${o.orderStatus}">${o.orderStatus}</span></td>
-        <td>${new Date(o.orderDate).toLocaleDateString('en-IN')}</td>
+        <td>${o.orderDate ? new Date(o.orderDate).toLocaleDateString('en-IN') : '—'}</td>
       </tr>`).join('');
-  } catch(e) { showToast('Failed to load orders', 'error'); }
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load orders: ' + (e.message || '') + '</td></tr>';
+    showToast('Failed to load orders: ' + (e.message || ''), 'error');
+  }
 }
 
 async function loadCategories() {
+  const tbody = document.getElementById('categories-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>';
   try {
     const res = await Api.get('/api/admin/categories');
     const cats = res.data || [];
-    const tbody = document.getElementById('categories-tbody');
-    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories</td></tr>'; return; }
+    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories found</td></tr>'; return; }
     tbody.innerHTML = cats.map(c => `
       <tr>
         <td>#${c.id}</td>
-        <td>${c.name}</td>
+        <td><strong>${c.name}</strong></td>
         <td>${c.description || '—'}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>
-          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name}','${c.description||''}')">Edit</button>
+          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name.replace(/'/g, "\\'")}','${(c.description||'').replace(/'/g, "\\'")}')">Edit</button>
           <button class="btn-sm btn-red" onclick="deleteCategory(${c.id})" style="margin-left:6px">Delete</button>
         </td>
       </tr>`).join('');
-  } catch(e) { showToast('Failed to load categories', 'error'); }
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#d32f2f">Failed to load categories</td></tr>';
+    showToast('Failed to load categories: ' + (e.message || ''), 'error');
+  }
 }
 
 function openCatModal() { currentCatId = null; document.getElementById('cat-modal-title').textContent='Add Category'; document.getElementById('cat-name').value=''; document.getElementById('cat-desc').value=''; document.getElementById('cat-modal').classList.add('show'); }

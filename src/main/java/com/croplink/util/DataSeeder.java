@@ -24,6 +24,7 @@ public class DataSeeder {
     private final DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
     private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -95,11 +96,11 @@ public class DataSeeder {
         if (veggiesCat != null) {
             Category fruitsCat = categoryRepository.findByName("Fruits").orElse(veggiesCat);
             List<Object[]> products = List.of(
-                new Object[]{"Fresh Tomatoes", veggiesCat, "Juicy red tomatoes from the farm", new BigDecimal("30"), 100, "kg", "Premium", "Ripe", "Harvested Today", "Organic", "Kalyan, Maharashtra"},
-                new Object[]{"Green Spinach", veggiesCat, "Tender spinach leaves, rich in iron", new BigDecimal("25"), 50, "kg", "Premium", "Semi-Ripe", "Harvested Today", "Pesticide-Free", "Kalyan, Maharashtra"},
-                new Object[]{"Alphonso Mangoes", fruitsCat, "Premium Alphonso mangoes from Ratnagiri", new BigDecimal("350"), 30, "dozen", "Premium", "Ripe", "1 Day Old", "Organic", "Ratnagiri, Maharashtra"},
-                new Object[]{"Fresh Carrots", veggiesCat, "Crunchy orange carrots, farm fresh", new BigDecimal("40"), 80, "kg", "Standard", "Fully Ripe", "Harvested Today", "Conventional", "Kalyan, Maharashtra"},
-                new Object[]{"Baby Potatoes", veggiesCat, "Small creamy baby potatoes, ideal for curries", new BigDecimal("35"), 200, "kg", "Standard", "Fully Ripe", "1 Day Old", "Conventional", "Kalyan, Maharashtra"}
+                new Object[]{"Fresh Tomatoes", veggiesCat, "Juicy red tomatoes from the farm", new BigDecimal("30"), 100, "kg", "Premium", "Ripe", "Harvested Today", "Organic", "Kalyan, Maharashtra", "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600"},
+                new Object[]{"Green Spinach", veggiesCat, "Tender spinach leaves, rich in iron", new BigDecimal("25"), 50, "kg", "Premium", "Semi-Ripe", "Harvested Today", "Pesticide-Free", "Kalyan, Maharashtra", "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600"},
+                new Object[]{"Alphonso Mangoes", fruitsCat, "Premium Alphonso mangoes from Ratnagiri", new BigDecimal("350"), 30, "dozen", "Premium", "Ripe", "1 Day Old", "Organic", "Ratnagiri, Maharashtra", "https://images.unsplash.com/photo-1553279768-865429fa0078?w=600"},
+                new Object[]{"Fresh Carrots", veggiesCat, "Crunchy orange carrots, farm fresh", new BigDecimal("40"), 80, "kg", "Standard", "Fully Ripe", "Harvested Today", "Conventional", "Kalyan, Maharashtra", "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=600"},
+                new Object[]{"Baby Potatoes", veggiesCat, "Small creamy baby potatoes, ideal for curries", new BigDecimal("35"), 200, "kg", "Standard", "Fully Ripe", "1 Day Old", "Conventional", "Kalyan, Maharashtra", "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600"}
             );
             for (Object[] p : products) {
                 Product product = Product.builder()
@@ -114,7 +115,9 @@ public class DataSeeder {
                         .minimumOrderQuantity(1).availability("Available")
                         .productStatus("ACTIVE").averageRating(4.5).totalReviews(10)
                         .build();
-                productRepository.save(product);
+                product = productRepository.save(product);
+                ProductImage pi = ProductImage.builder().product(product).imageUrl((String) p[11]).isPrimary(true).build();
+                productImageRepository.save(pi);
             }
         }
         log.info("Data seeding complete!");

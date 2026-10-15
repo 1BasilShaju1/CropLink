@@ -21,19 +21,30 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final UserRepository userRepository;
+
+    public Cart getOrCreateCart(Long customerId) {
+        return cartRepository.findByCustomerId(customerId)
+                .orElseGet(() -> {
+                    User customer = userRepository.findById(customerId)
+                            .orElseThrow(() -> new AppException("Customer not found", 404));
+                    Cart newCart = new Cart();
+                    newCart.setCustomer(customer);
+                    return cartRepository.save(newCart);
+                });
+    }
 
     public CartResponse getCart(Long customerId) {
-        Cart cart = cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new AppException("Cart not found", 404));
-        List<CartItemResponse> items = cart.getItems().stream().map(this::toItemResponse).collect(Collectors.toList());
+        Cart cart = getOrCreateCart(customerId);
+        List<CartItemResponse> items = (cart.getItems() != null ? cart.getItems() : java.util.Collections.<CartItem>emptyList())
+                .stream().map(this::toItemResponse).collect(Collectors.toList());
         BigDecimal total = items.stream().map(CartItemResponse::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         return CartResponse.builder().cartId(cart.getId()).items(items).totalAmount(total).totalItems(items.size()).build();
     }
 
     @Transactional
     public CartResponse addItem(Long customerId, CartItemRequest request) {
-        Cart cart = cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new AppException("Cart not found", 404));
+        Cart cart = getOrCreateCart(customerId);
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException("Product not found", 404));
         if (!product.getProductStatus().equals("ACTIVE")) throw new AppException("Product not available", 400);

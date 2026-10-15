@@ -31,7 +31,13 @@ public class OrderService {
     @Transactional
     public OrderResponse placeOrder(Long customerId, OrderRequest request) {
         Cart cart = cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new AppException("Cart not found", 404));
+                .orElseGet(() -> {
+                    User customer = userRepository.findById(customerId)
+                            .orElseThrow(() -> new AppException("Customer not found", 404));
+                    Cart newCart = new Cart();
+                    newCart.setCustomer(customer);
+                    return cartRepository.save(newCart);
+                });
         if (cart.getItems().isEmpty()) throw new AppException("Cart is empty", 400);
         CartItem firstItem = cart.getItems().get(0);
         User farmer = firstItem.getProduct().getFarmer();
@@ -129,11 +135,18 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new AppException("Order not found", 404));
-        return toResponse(order, orderItemRepository.findByOrderId(orderId));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException("Order not found", 404));
+        return toOrderResponse(order);
     }
 
-    private OrderResponse toResponse(Order o, List<OrderItem> items) {
+    public OrderResponse toOrderResponse(Order o) {
+        if (o == null) return null;
+        List<OrderItem> items = orderItemRepository.findByOrderId(o.getId());
+        return toResponse(o, items);
+    }
+
+    public OrderResponse toResponse(Order o, List<OrderItem> items) {
         List<OrderItemResponse> itemResponses = items.stream().map(oi -> OrderItemResponse.builder()
                 .id(oi.getId())
                 .productId(oi.getProduct().getId())

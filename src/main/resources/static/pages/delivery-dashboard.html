@@ -98,6 +98,23 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif}
 <script src="/js/api.js"></script>
 <script src="/js/effects.js"></script>
 <script>
+function showToast(msg, type = 'info') {
+  if (window.Toast) {
+    if (type === 'success' && Toast.success) return Toast.success(msg);
+    if (type === 'error' && Toast.error) return Toast.error(msg);
+    if (type === 'warning' && Toast.warning) return Toast.warning(msg);
+    if (Toast.info) return Toast.info(msg);
+  }
+  const t = document.getElementById('toast');
+  if (t) {
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  } else {
+    alert(msg);
+  }
+}
+
 if (!Api.isLoggedIn() || Api.getUserRole() !== 'DELIVERY_PARTNER') {
   window.location.href = '/pages/login.html';
 }
@@ -112,12 +129,13 @@ function switchTab(tab, el) {
   const titles = {'my-deliveries': 'My Deliveries', 'available': 'Available Pickups'};
   document.getElementById('page-title').innerHTML = '<i class="fas fa-route"></i> ' + (titles[tab] || tab);
   if (tab === 'available') loadAvailable();
+  else if (tab === 'my-deliveries') loadMyDeliveries();
 }
 
 async function loadMyDeliveries() {
   try {
     const res = await Api.get('/api/delivery/orders?page=0&size=50');
-    const orders = res.data.content || [];
+    const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
     const activeOrders = orders.filter(o => o.orderStatus === 'OUT_FOR_DELIVERY');
     const deliveredOrders = orders.filter(o => o.orderStatus === 'DELIVERED');
     document.getElementById('s-total').textContent = orders.length;
@@ -127,13 +145,13 @@ async function loadMyDeliveries() {
     const list = document.getElementById('my-deliveries-list');
     if (!orders.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-truck"></i>No deliveries yet</div>'; return; }
     list.innerHTML = orders.map(o => renderOrderCard(o, true)).join('');
-  } catch(e) { showToast('Failed to load deliveries', 'error'); }
+  } catch(e) { showToast('Failed to load deliveries: ' + (e.message || ''), 'error'); }
 }
 
 async function loadAvailable() {
   try {
     const res = await Api.get('/api/delivery/available?page=0&size=50');
-    const orders = res.data.content || [];
+    const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
     const list = document.getElementById('available-list');
     if (!orders.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-box"></i>No orders ready for pickup</div>'; return; }
     list.innerHTML = orders.map(o => `

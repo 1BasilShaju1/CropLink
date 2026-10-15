@@ -33,27 +33,28 @@ public class DeliveryController {
     }
 
     @GetMapping("/available")
-    public ResponseEntity<?> getAvailableDeliveries(
+    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAvailableDeliveries(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<Order> orders = deliveryService.getAvailableDeliveries(page, size);
+        Page<OrderResponse> orders = deliveryService.getAvailableDeliveries(page, size)
+                .map(orderService::toOrderResponse);
         return ResponseEntity.ok(ApiResponse.success("Available deliveries", orders));
     }
 
     @PostMapping("/orders/{orderId}/accept")
-    public ResponseEntity<?> acceptDelivery(
+    public ResponseEntity<ApiResponse<OrderResponse>> acceptDelivery(
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user) {
         Order order = deliveryService.acceptDelivery(orderId, user.getId());
-        return ResponseEntity.ok(ApiResponse.success("Delivery accepted", order));
+        return ResponseEntity.ok(ApiResponse.success("Delivery accepted", orderService.toOrderResponse(order)));
     }
 
     @PatchMapping("/orders/{orderId}/status")
-    public ResponseEntity<?> updateStatus(
+    public ResponseEntity<ApiResponse<OrderResponse>> updateStatus(
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody Map<String, String> body) {
         Order order = deliveryService.updateDeliveryStatus(orderId, body.get("status"), user.getId());
-        return ResponseEntity.ok(ApiResponse.success("Status updated", order));
+        return ResponseEntity.ok(ApiResponse.success("Status updated", orderService.toOrderResponse(order)));
     }
 }
