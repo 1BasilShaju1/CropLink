@@ -389,7 +389,7 @@
                 const reviewContainer = document.getElementById('reviews-list');
                 if (reviews.length > 0) {
                     reviewContainer.innerHTML = reviews.map(r => `
-                        <div class="card fade-in-up" style="margin-bottom:1rem;">
+                        <div class="card visible fade-in-up" style="margin-bottom:1rem;">
                             <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
                                 <strong>${r.customerName || 'Customer'}</strong>
                                 <div class="star-rating">
@@ -460,7 +460,7 @@
 
             const reviewContainer = document.getElementById('reviews-list');
             const newCard = document.createElement('div');
-            newCard.className = 'card fade-in-up';
+            newCard.className = 'card visible fade-in-up';
             newCard.innerHTML = `
                 <div class="flex items-center justify-between" style="margin-bottom: 0.5rem;">
                     <strong>You</strong>

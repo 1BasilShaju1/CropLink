@@ -195,27 +195,32 @@ function initRippleEffect() {
 // 5. Scroll Animations (IntersectionObserver)
 // ==========================================================================
 function initScrollAnimations() {
+    const makeVisible = (elements) => {
+        elements.forEach(el => el.classList.add('visible'));
+    };
+
     const animElements = document.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right, .zoom-in');
+    makeVisible(animElements);
 
-    if (!('IntersectionObserver' in window)) {
-        animElements.forEach(el => el.classList.add('visible'));
-        return;
-    }
-
-    const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                obs.unobserve(entry.target);
-            }
+    if (window.MutationObserver) {
+        const mutationObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) {
+                        if (node.matches && node.matches('.fade-in-up, .slide-in-left, .slide-in-right, .zoom-in')) {
+                            node.classList.add('visible');
+                        }
+                        if (node.querySelectorAll) {
+                            node.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right, .zoom-in').forEach(el => {
+                                el.classList.add('visible');
+                            });
+                        }
+                    }
+                });
+            });
         });
-    }, {
-        root: null,
-        threshold: 0.1,
-        rootMargin: '0px 0px -40px 0px'
-    });
-
-    animElements.forEach(el => observer.observe(el));
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
 }
 
 // ==========================================================================
