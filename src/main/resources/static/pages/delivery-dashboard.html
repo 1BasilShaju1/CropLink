@@ -115,7 +115,7 @@ function showToast(msg, type = 'info') {
   }
 }
 
-if (!Api.isLoggedIn() || Api.getUserRole() !== 'DELIVERY_PARTNER') {
+if (!Api.isLoggedIn() || (Api.getUserRole() !== 'DELIVERY_PARTNER' && Api.getUserRole() !== 'ADMIN')) {
   window.location.href = '/pages/login.html';
 }
 const user = Api.getUser();

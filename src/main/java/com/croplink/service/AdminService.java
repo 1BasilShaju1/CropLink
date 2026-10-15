@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AdminService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
@@ -45,6 +48,7 @@ public class AdminService {
         return userRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
     }
 
+    @Transactional
     public User updateUserStatus(Long userId, String status) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException("User not found", 404));

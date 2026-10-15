@@ -447,8 +447,9 @@
             // Fetch live API products if available
             try {
                 const res = await Api.get('/api/products?featured=true');
-                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    renderProducts(res.data.slice(0, 4));
+                const list = res?.data?.content || (Array.isArray(res?.data) ? res.data : []);
+                if (list.length > 0) {
+                    renderProducts(list.slice(0, 4));
                 }
             } catch (err) {
                 // Keep fallback gracefully

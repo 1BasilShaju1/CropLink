@@ -154,8 +154,8 @@
     <script src="/js/api.js"></script>
     <script src="/js/effects.js"></script>
     <script>
-        // Auth Guard: Only FARMER
-        Api.requireAuth(['FARMER']);
+        // Auth Guard: FARMER and ADMIN
+        Api.requireAuth(['FARMER', 'ADMIN']);
 
         let myProducts = [];
         let currentFilter = 'ALL';
@@ -165,16 +165,19 @@
             grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem;"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:var(--primary);"></i><p style="margin-top:1rem; color:var(--text-muted);">Loading your products...</p></div>`;
             try {
                 const res = await Api.get('/api/farmer/products');
-                // API returns ApiResponse<List<ProductResponse>>
-                if (res && res.data && Array.isArray(res.data)) {
-                    myProducts = res.data;
-                } else {
-                    myProducts = [];
+                let prods = [];
+                if (res && res.data) {
+                    if (Array.isArray(res.data)) {
+                        prods = res.data;
+                    } else if (res.data.content && Array.isArray(res.data.content)) {
+                        prods = res.data.content;
+                    }
                 }
+                myProducts = prods;
             } catch (err) {
                 console.error('Failed to load products:', err);
                 myProducts = [];
-                if (window.Toast) Toast.error('Failed to load products. Please refresh.');
+                if (window.Toast) Toast.error('Failed to load products: ' + (err.message || 'Please refresh.'));
             }
             updateCounts();
             renderGrid();
@@ -221,8 +224,8 @@
                                     p.productStatus === 'REJECTED' ? 'badge-cancelled' : 'badge-secondary';
                 const statusLabel = p.productStatus === 'PENDING_APPROVAL' ? 'Pending Approval' :
                                     p.productStatus ? p.productStatus.replace(/_/g, ' ') : 'Unknown';
-                const availBadge = p.availability === 'Available' ? '#22c55e' :
-                                   p.availability === 'Limited Stock' ? '#f59e0b' : '#ef4444';
+                const isAvail = (p.availability === 'Available' || p.availability === 'IN_STOCK' || (p.quantityAvailable > 0 && p.availability !== 'OUT_OF_STOCK'));
+                const availBadge = isAvail ? '#22c55e' : (p.availability === 'Limited Stock' ? '#f59e0b' : '#ef4444');
                 return `
                 <div class="card card-hover-lift product-card">
                     <div class="product-image-wrap">

@@ -217,7 +217,7 @@
             document.getElementById('loading-indicator').style.display = 'inline';
             const search = document.getElementById('search-input').value.trim() || null;
             const sort = document.getElementById('sort-select').value || null;
-            const catParam = selectedCategoryId ? `&category=${selectedCategoryId}` : '';
+            const catParam = selectedCategoryId ? `&category=${encodeURIComponent(selectedCategoryId)}` : '';
             const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
             const sortParam = sort ? `&sort=${sort}` : '';
             const url = `/api/products/public?page=${currentPage}&size=12${catParam}${searchParam}${sortParam}`;
@@ -225,10 +225,11 @@
             try {
                 const res = await Api.get(url);
                 const pageData = res && res.data ? res.data : {};
-                allProducts = pageData.content || [];
-                totalPages = pageData.totalPages || 0;
-                totalElements = pageData.totalElements || 0;
+                allProducts = Array.isArray(pageData) ? pageData : (pageData.content || []);
+                totalPages = pageData.totalPages || 1;
+                totalElements = pageData.totalElements !== undefined ? pageData.totalElements : allProducts.length;
             } catch(e) {
+                console.error('Failed to fetch products:', e);
                 allProducts = [];
                 totalPages = 0;
                 totalElements = 0;
@@ -248,12 +249,12 @@
             const maxPrice = Number(document.getElementById('price-range').value);
 
             let filtered = allProducts.filter(p => {
-                const matchesOrganic = !organicOnly || (p.organicStatus && p.organicStatus.toLowerCase().includes('organic'));
-                const matchesPrice = Number(p.price) <= maxPrice;
+                const matchesOrganic = !organicOnly || (p.organicStatus && String(p.organicStatus).toLowerCase().includes('organic'));
+                const matchesPrice = Number(p.price || 0) <= maxPrice;
                 return matchesOrganic && matchesPrice;
             });
 
-            document.getElementById('results-count').textContent = totalElements;
+            document.getElementById('results-count').textContent = filtered.length;
 
             if (filtered.length === 0) {
                 grid.innerHTML = `
@@ -268,15 +269,16 @@
 
             grid.innerHTML = filtered.map(p => {
                 const imageUrl = p.primaryImageUrl || (p.imageUrls && p.imageUrls[0]) || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80';
-                const rating = p.averageRating || 4.5;
-                const reviews = p.totalReviews || 0;
+                const rating = Number(p.averageRating) || 4.5;
+                const reviews = Number(p.totalReviews) || 0;
                 const stars = generateStars(rating);
-                const organic = p.organicStatus || 'Farm Fresh';
+                const organic = (typeof p.organicStatus === 'string') ? p.organicStatus : 'Farm Fresh';
                 const organicLabel = organic.split(' ')[0];
+                const price = Number(p.price || 0);
                 return `
                     <div class="product-card fade-in-up">
                         <div class="product-image-wrap">
-                            <img src="${imageUrl}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80'">
+                            <img src="${imageUrl}" alt="${p.name || 'Crop'}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80'">
                             <div class="product-badges">
                                 <span class="badge badge-organic">${organicLabel}</span>
                                 ${p.availability === 'Limited Stock' ? '<span class="badge badge-pending" style="margin-left:4px;">Limited</span>' : ''}
@@ -287,7 +289,7 @@
                                 <i class="fa-solid fa-circle-check"></i>
                                 <span>${p.farmerName || 'Verified Farmer'}${p.farmName ? ' · ' + p.farmName : ''}</span>
                             </div>
-                            <a href="/pages/product-details.html?id=${p.id}" class="product-title">${p.name}</a>
+                            <a href="/pages/product-details.html?id=${p.id}" class="product-title">${p.name || 'Produce'}</a>
                             <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">${p.categoryName || ''} ${p.location ? '· ' + p.location : ''}</div>
                             <div class="product-rating">
                                 ${stars}
@@ -295,10 +297,10 @@
                             </div>
                             <div class="product-footer">
                                 <div class="product-price">
-                                    <span class="currency">₹${Number(p.price).toFixed(2)}</span>
-                                    <span class="unit">/${p.unit}</span>
+                                    <span class="currency">₹${price.toFixed(2)}</span>
+                                    <span class="unit">/${p.unit || 'kg'}</span>
                                 </div>
-                                <button class="btn btn-primary btn-sm add-cart-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-unit="${p.unit}" data-farmer="${p.farmerName || ''}" data-img="${imageUrl}">
+                                <button class="btn btn-primary btn-sm add-cart-btn" data-id="${p.id}" data-name="${p.name || 'Produce'}" data-price="${price}" data-unit="${p.unit || 'kg'}" data-farmer="${p.farmerName || ''}" data-img="${imageUrl}">
                                     <i class="fa-solid fa-cart-plus"></i> Add
                                 </button>
                             </div>

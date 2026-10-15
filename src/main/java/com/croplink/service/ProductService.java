@@ -16,12 +16,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final FarmerProfileRepository farmerProfileRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
+    private final CartItemRepository cartItemRepository;
     private final FileStorageService fileStorageService;
 
     @Transactional
@@ -39,7 +41,7 @@ public class ProductService {
                 .unit(request.getUnit())
                 .qualityGrade(request.getQualityGrade())
                 .ripenessLevel(request.getRipenessLevel())
-                .harvestDate(request.getHarvestDate())
+                .harvestDate(request.getHarvestDate() != null ? request.getHarvestDate() : java.time.LocalDate.now())
                 .freshnessStatus(request.getFreshnessStatus())
                 .organicStatus(request.getOrganicStatus())
                 .location(request.getLocation())
@@ -47,7 +49,7 @@ public class ProductService {
                 .paymentOptions(request.getPaymentOptions())
                 .minimumOrderQuantity(request.getMinimumOrderQuantity() != null ? request.getMinimumOrderQuantity() : 1)
                 .availability(request.getAvailability() != null ? request.getAvailability() : "Available")
-                .productStatus("PENDING_APPROVAL")
+                .productStatus("ACTIVE")
                 .averageRating(0.0)
                 .totalReviews(0)
                 .build();
@@ -66,13 +68,25 @@ public class ProductService {
         return toResponse(product);
     }
 
-    public Page<ProductResponse> getActiveProducts(Long categoryId, String search, int page, int size, String sort) {
-        Sort sorting = sort != null && sort.equals("price_asc") ? Sort.by("price").ascending() :
-                       sort != null && sort.equals("price_desc") ? Sort.by("price").descending() :
-                       sort != null && sort.equals("rating") ? Sort.by("averageRating").descending() :
+    public Page<ProductResponse> getActiveProducts(String categoryParam, String search, int page, int size, String sort) {
+        Long categoryId = null;
+        if (categoryParam != null && !categoryParam.isBlank() && !categoryParam.equalsIgnoreCase("null") && !categoryParam.equalsIgnoreCase("undefined")) {
+            try {
+                categoryId = Long.parseLong(categoryParam.trim());
+            } catch (NumberFormatException e) {
+                Category cat = categoryRepository.findByNameIgnoreCase(categoryParam.trim()).orElse(null);
+                if (cat != null) {
+                    categoryId = cat.getId();
+                }
+            }
+        }
+        String cleanSearch = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        Sort sorting = "price_asc".equals(sort) ? Sort.by("price").ascending() :
+                       "price_desc".equals(sort) ? Sort.by("price").descending() :
+                       "rating".equals(sort) ? Sort.by("averageRating").descending() :
                        Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page, size, sorting);
-        return productRepository.findActiveProducts(categoryId, search, pageable).map(this::toResponse);
+        return productRepository.findActiveProducts(categoryId, cleanSearch, pageable).map(this::toResponse);
     }
 
     public Page<ProductResponse> getFarmerProducts(Long farmerId, String status, int page, int size) {
@@ -132,18 +146,47 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Long productId, Long farmerId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException("Product not found", 404));
-        if (!product.getFarmer().getId().equals(farmerId)) throw new AppException("Not authorized", 403);
-        List<ProductImage> images = productImageRepository.findByProductId(productId);
-        images.forEach(img -> fileStorageService.deleteFile(img.getImageUrl()));
-        productRepository.delete(product);
+    public void deleteProduct(Long productId, Long actorId, boolean isAdmin) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException("Product not found", 404));
+        if (!isAdmin && !product.getFarmer().getId().equals(actorId)) {
+            throw new AppException("Not authorized to delete this product", 403);
+        }
+        try {
+            // Delete associated images
+            List<ProductImage> images = productImageRepository.findByProductId(productId);
+            if (images != null) {
+                images.forEach(img -> fileStorageService.deleteFile(img.getImageUrl()));
+                productImageRepository.deleteAll(images);
+            }
+            // Delete cart items referencing this product
+            List<CartItem> cartItems = cartItemRepository.findAll();
+            for (CartItem ci : cartItems) {
+                if (ci.getProduct() != null && ci.getProduct().getId().equals(productId)) {
+                    cartItemRepository.delete(ci);
+                }
+            }
+            productRepository.delete(product);
+            productRepository.flush();
+        } catch (Exception ex) {
+            // If foreign keys (e.g. past order history) prevent hard delete, mark inactive so it never shows up
+            product.setProductStatus("INACTIVE");
+            product.setAvailability("Out of Stock");
+            product.setQuantityAvailable(0);
+            productRepository.save(product);
+        }
     }
 
     public Page<ProductResponse> getAllProductsAdmin(int page, int size) {
         return productRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending())).map(this::toResponse);
     }
 
+    public List<ProductResponse> getAllProductsList() {
+        return productRepository.findAll(Sort.by("createdAt").descending()).stream()
+                .map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
     public ProductResponse adminUpdateStatus(Long id, String status) {
         Product p = productRepository.findById(id).orElseThrow(() -> new AppException("Product not found", 404));
         p.setProductStatus(status);
@@ -163,18 +206,53 @@ public class ProductService {
     }
 
     public ProductResponse toResponse(Product p) {
+        if (p == null) return null;
         List<ProductImage> images = productImageRepository.findByProductId(p.getId());
-        List<String> imageUrls = images.stream().map(ProductImage::getImageUrl).collect(Collectors.toList());
-        String primaryImageUrl = images.stream().filter(ProductImage::getIsPrimary).map(ProductImage::getImageUrl).findFirst()
-                .orElse(imageUrls.isEmpty() ? null : imageUrls.get(0));
-        FarmerProfile fp = (p.getFarmer() != null) ? farmerProfileRepository.findByUserId(p.getFarmer().getId()).orElse(null) : null;
+        List<String> imageUrls = (images != null) ? images.stream().map(ProductImage::getImageUrl).collect(Collectors.toList()) : new java.util.ArrayList<>();
+        String primaryImageUrl = (images != null) ? images.stream().filter(ProductImage::getIsPrimary).map(ProductImage::getImageUrl).findFirst()
+                .orElse(imageUrls.isEmpty() ? null : imageUrls.get(0)) : null;
+
+        if (primaryImageUrl == null || primaryImageUrl.isBlank()) {
+            primaryImageUrl = "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80";
+        }
+        if (imageUrls.isEmpty()) {
+            imageUrls.add(primaryImageUrl);
+        }
+
+        Long farmerId = null;
+        String farmerName = "Farmer";
+        String farmName = "";
+        try {
+            if (p.getFarmer() != null) {
+                farmerId = p.getFarmer().getId();
+                if (p.getFarmer().getFullName() != null) {
+                    farmerName = p.getFarmer().getFullName();
+                }
+                FarmerProfile fp = farmerProfileRepository.findByUserId(farmerId).orElse(null);
+                if (fp != null && fp.getFarmName() != null) {
+                    farmName = fp.getFarmName();
+                }
+            }
+        } catch (Exception ignored) {}
+
+        Long categoryId = null;
+        String categoryName = "Produce";
+        try {
+            if (p.getCategory() != null) {
+                categoryId = p.getCategory().getId();
+                if (p.getCategory().getName() != null) {
+                    categoryName = p.getCategory().getName();
+                }
+            }
+        } catch (Exception ignored) {}
+
         return ProductResponse.builder()
                 .id(p.getId())
-                .farmerId(p.getFarmer() != null ? p.getFarmer().getId() : null)
-                .farmerName(p.getFarmer() != null ? p.getFarmer().getFullName() : "")
-                .farmName(fp != null ? fp.getFarmName() : "")
-                .categoryId(p.getCategory() != null ? p.getCategory().getId() : null)
-                .categoryName(p.getCategory() != null ? p.getCategory().getName() : "")
+                .farmerId(farmerId)
+                .farmerName(farmerName)
+                .farmName(farmName)
+                .categoryId(categoryId)
+                .categoryName(categoryName)
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())

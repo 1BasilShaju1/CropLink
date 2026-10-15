@@ -22,9 +22,9 @@ import java.util.Map;
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping("/products/public")
+    @GetMapping({"/products", "/products/public"})
     public ResponseEntity<ApiResponse<Page<ProductResponse>>> getPublicProducts(
-            @RequestParam(required = false) Long category,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
@@ -33,21 +33,28 @@ public class ProductController {
                 productService.getActiveProducts(category, search, page, size, sort)));
     }
 
-    @GetMapping("/products/public/{id}")
+    @GetMapping({"/products/{id}", "/products/public/{id}"})
     public ResponseEntity<ApiResponse<ProductResponse>> getProduct(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success("Product fetched", productService.getProductById(id)));
     }
 
     @GetMapping("/farmer/products")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getFarmerProducts(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        if (userDetails.getUser().getRole() == com.croplink.entity.User.Role.ADMIN) {
+            return ResponseEntity.ok(ApiResponse.success("Products fetched",
+                    productService.getAllProductsList()));
+        }
         return ResponseEntity.ok(ApiResponse.success("Products fetched",
                 productService.getFarmerProductsList(userDetails.getId())));
     }
 
     @PostMapping("/farmer/products")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
             @RequestParam String name,
             @RequestParam Long categoryId,
@@ -67,21 +74,31 @@ public class ProductController {
             @RequestParam(required = false) String availability,
             @RequestParam(required = false) List<MultipartFile> images,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
         ProductRequest req = new ProductRequest();
         req.setName(name); req.setCategoryId(categoryId); req.setDescription(description);
         req.setPrice(price); req.setQuantityAvailable(quantityAvailable); req.setUnit(unit);
         req.setQualityGrade(qualityGrade); req.setRipenessLevel(ripenessLevel);
-        if (harvestDate != null && !harvestDate.isBlank()) req.setHarvestDate(LocalDate.parse(harvestDate));
+        LocalDate parsedHarvestDate = LocalDate.now();
+        if (harvestDate != null && !harvestDate.isBlank()) {
+            try {
+                parsedHarvestDate = LocalDate.parse(harvestDate);
+            } catch (Exception ignored) {}
+        }
+        req.setHarvestDate(parsedHarvestDate);
         req.setFreshnessStatus(freshnessStatus); req.setOrganicStatus(organicStatus);
         req.setLocation(location); req.setDeliveryOptions(deliveryOptions);
-        req.setPaymentOptions(paymentOptions); req.setMinimumOrderQuantity(minimumOrderQuantity);
-        req.setAvailability(availability);
+        req.setPaymentOptions(paymentOptions);
+        req.setMinimumOrderQuantity(minimumOrderQuantity != null ? minimumOrderQuantity : 1);
+        req.setAvailability(availability != null && !availability.isBlank() ? availability : "Available");
         return ResponseEntity.ok(ApiResponse.success("Product created",
                 productService.createProduct(req, images, userDetails.getId())));
     }
 
     @PutMapping("/farmer/products/{id}")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
             @PathVariable Long id,
             @RequestParam String name,
@@ -102,25 +119,39 @@ public class ProductController {
             @RequestParam(required = false) String availability,
             @RequestParam(required = false) List<MultipartFile> images,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
         ProductRequest req = new ProductRequest();
         req.setName(name); req.setCategoryId(categoryId); req.setDescription(description);
         req.setPrice(price); req.setQuantityAvailable(quantityAvailable); req.setUnit(unit);
         req.setQualityGrade(qualityGrade); req.setRipenessLevel(ripenessLevel);
-        if (harvestDate != null && !harvestDate.isBlank()) req.setHarvestDate(LocalDate.parse(harvestDate));
+        LocalDate parsedHarvestDate = LocalDate.now();
+        if (harvestDate != null && !harvestDate.isBlank()) {
+            try {
+                parsedHarvestDate = LocalDate.parse(harvestDate);
+            } catch (Exception ignored) {}
+        }
+        req.setHarvestDate(parsedHarvestDate);
         req.setFreshnessStatus(freshnessStatus); req.setOrganicStatus(organicStatus);
         req.setLocation(location); req.setDeliveryOptions(deliveryOptions);
-        req.setPaymentOptions(paymentOptions); req.setMinimumOrderQuantity(minimumOrderQuantity);
-        req.setAvailability(availability);
+        req.setPaymentOptions(paymentOptions);
+        req.setMinimumOrderQuantity(minimumOrderQuantity != null ? minimumOrderQuantity : 1);
+        req.setAvailability(availability != null && !availability.isBlank() ? availability : "Available");
         return ResponseEntity.ok(ApiResponse.success("Product updated",
                 productService.updateProduct(id, req, images, userDetails.getId())));
     }
 
     @DeleteMapping("/farmer/products/{id}")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        productService.deleteProduct(id, userDetails.getId());
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        boolean isAdmin = userDetails.getUser().getRole() == com.croplink.entity.User.Role.ADMIN;
+        productService.deleteProduct(id, userDetails.getId(), isAdmin);
         return ResponseEntity.ok(ApiResponse.success("Product deleted"));
     }
 

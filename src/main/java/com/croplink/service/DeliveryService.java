@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DeliveryService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;

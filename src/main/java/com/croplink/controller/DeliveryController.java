@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/delivery")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('DELIVERY_PARTNER')")
+@PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
 public class DeliveryController {
     private final DeliveryService deliveryService;
     private final OrderService orderService;
@@ -27,15 +27,23 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getMyOrders(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success("Delivery orders",
-                orderService.getDeliveryPartnerOrders(user.getId(), page, size)));
+            @RequestParam(defaultValue = "20") int size) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        Page<OrderResponse> orders;
+        if (user.getUser().getRole() == com.croplink.entity.User.Role.ADMIN) {
+            orders = orderService.getAllOrders(page, size);
+        } else {
+            orders = orderService.getDeliveryPartnerOrders(user.getId(), page, size);
+        }
+        return ResponseEntity.ok(ApiResponse.success("Delivery orders", orders));
     }
 
     @GetMapping("/available")
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAvailableDeliveries(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "20") int size) {
         Page<OrderResponse> orders = deliveryService.getAvailableDeliveries(page, size)
                 .map(orderService::toOrderResponse);
         return ResponseEntity.ok(ApiResponse.success("Available deliveries", orders));
@@ -45,6 +53,9 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<OrderResponse>> acceptDelivery(
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
         Order order = deliveryService.acceptDelivery(orderId, user.getId());
         return ResponseEntity.ok(ApiResponse.success("Delivery accepted", orderService.toOrderResponse(order)));
     }
@@ -54,6 +65,9 @@ public class DeliveryController {
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody Map<String, String> body) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
         Order order = deliveryService.updateDeliveryStatus(orderId, body.get("status"), user.getId());
         return ResponseEntity.ok(ApiResponse.success("Status updated", orderService.toOrderResponse(order)));
     }

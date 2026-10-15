@@ -32,8 +32,15 @@ public class OrderController {
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getCustomerOrders(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success("Orders fetched", orderService.getCustomerOrders(user.getId(), page, size)));
+            @RequestParam(defaultValue = "20") int size) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        Page<OrderResponse> orders = orderService.getCustomerOrders(user.getId(), page, size);
+        if (orders.isEmpty() && user.getUser().getRole() == com.croplink.entity.User.Role.ADMIN) {
+            orders = orderService.getAllOrders(page, size);
+        }
+        return ResponseEntity.ok(ApiResponse.success("Orders fetched", orders));
     }
 
     @GetMapping("/customer/orders/{id}")
@@ -45,20 +52,32 @@ public class OrderController {
     }
 
     @GetMapping("/farmer/orders")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getFarmerOrders(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success("Orders fetched", orderService.getFarmerOrders(user.getId(), page, size)));
+            @RequestParam(defaultValue = "20") int size) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        Page<OrderResponse> orders;
+        if (user.getUser().getRole() == com.croplink.entity.User.Role.ADMIN) {
+            orders = orderService.getAllOrders(page, size);
+        } else {
+            orders = orderService.getFarmerOrders(user.getId(), page, size);
+        }
+        return ResponseEntity.ok(ApiResponse.success("Orders fetched", orders));
     }
 
     @PatchMapping("/farmer/orders/{id}/status")
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderResponse>> updateFarmerOrderStatus(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody Map<String, String> body) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
         return ResponseEntity.ok(ApiResponse.success("Status updated", orderService.updateOrderStatus(id, body.get("status"), user.getId())));
     }
 

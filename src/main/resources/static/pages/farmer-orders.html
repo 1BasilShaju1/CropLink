@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Harvest Orders | CropLink Farm2Door</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .farmer-order-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+        }
+        .farmer-order-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        .order-head {
+            background: var(--bg-alt);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .order-content {
+            padding: 1.5rem;
+        }
+        .order-items-table {
+            width: 100%;
+            margin: 1rem 0;
+            border-collapse: collapse;
+        }
+        .order-items-table th, .order-items-table td {
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+        .order-items-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .action-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition-overlay"></div>
+
+    <header class="navbar">
+        <div class="container-fluid navbar-inner">
+            <a href="/index.html" class="navbar-brand">
+                <i class="fa-solid fa-leaf"></i>
+                <span>CropLink</span>
+                <span class="brand-badge">Farmer Portal</span>
+            </a>
+
+            <div class="navbar-actions">
+                <a href="/pages/add-product.html" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-plus"></i> Add Crop
+                </a>
+                <a href="/pages/farmer-dashboard.html" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-heading">Navigation</div>
+            <a href="/pages/farmer-dashboard.html" class="sidebar-link">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/pages/farmer-products.html" class="sidebar-link">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>My Harvests</span>
+            </a>
+            <a href="/pages/add-product.html" class="sidebar-link">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Add Crop</span>
+            </a>
+            <a href="/pages/farmer-orders.html" class="sidebar-link active">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>Order Deliveries</span>
+            </a>
+            <a href="/pages/profile.html" class="sidebar-link">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>Farm Profile</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="flex items-center justify-between" style="margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Harvest Orders & Deliveries</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;" id="orders-subtitle">
+                        Track incoming customer demand, pack fresh crops, and dispatch to doorstep delivery riders.
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="order-search" class="form-control" placeholder="Search orders..." oninput="renderOrders()" style="max-width: 240px;">
+                    <button class="btn btn-outline" onclick="loadFarmerOrders()">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex gap-2" style="margin-bottom: 1.5rem; flex-wrap: wrap;" id="order-filters">
+                <button class="btn btn-primary btn-sm order-filter-pill" onclick="setFilter('ALL', this)">All Orders (<span id="c-all">0</span>)</button>
+                <button class="btn btn-secondary btn-sm order-filter-pill" onclick="setFilter('PENDING', this)">New Requests (<span id="c-pending">0</span>)</button>
+                <button class="btn btn-secondary btn-sm order-filter-pill" onclick="setFilter('ACCEPTED', this)">Confirmed (<span id="c-accepted">0</span>)</button>
+                <button class="btn btn-secondary btn-sm order-filter-pill" onclick="setFilter('PACKED', this)">Ready to Dispatch (<span id="c-packed">0</span>)</button>
+                <button class="btn btn-secondary btn-sm order-filter-pill" onclick="setFilter('OUT_FOR_DELIVERY', this)">Out for Delivery (<span id="c-transit">0</span>)</button>
+                <button class="btn btn-secondary btn-sm order-filter-pill" onclick="setFilter('DELIVERED', this)">Delivered (<span id="c-delivered">0</span>)</button>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="orders-list-container">
+                <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i>
+                    <p style="margin-top:1rem;">Loading harvest orders...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/effects.js"></script>
+    <script>
+        // Auth guard: FARMER and ADMIN
+        Api.requireAuth(['FARMER', 'ADMIN']);
+
+        let ordersList = [];
+        let currentFilter = 'ALL';
+
+        async function loadFarmerOrders() {
+            const container = document.getElementById('orders-list-container');
+            container.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i><p style="margin-top:1rem;">Loading harvest orders...</p></div>';
+
+            try {
+                const res = await Api.get('/api/farmer/orders?page=0&size=50');
+                ordersList = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+            } catch (err) {
+                console.error('Failed to load farmer orders:', err);
+                ordersList = [];
+                if (window.Toast) Toast.error('Failed to load orders: ' + (err.message || 'Please refresh.'));
+            }
+
+            updateCounts();
+            renderOrders();
+        }
+
+        function updateCounts() {
+            const all = ordersList.length;
+            const pending = ordersList.filter(o => o.orderStatus === 'PENDING').length;
+            const accepted = ordersList.filter(o => o.orderStatus === 'ACCEPTED').length;
+            const packed = ordersList.filter(o => o.orderStatus === 'PACKED').length;
+            const transit = ordersList.filter(o => o.orderStatus === 'OUT_FOR_DELIVERY').length;
+            const delivered = ordersList.filter(o => o.orderStatus === 'DELIVERED').length;
+
+            document.getElementById('c-all').textContent = all;
+            document.getElementById('c-pending').textContent = pending;
+            document.getElementById('c-accepted').textContent = accepted;
+            document.getElementById('c-packed').textContent = packed;
+            document.getElementById('c-transit').textContent = transit;
+            document.getElementById('c-delivered').textContent = delivered;
+            document.getElementById('orders-subtitle').textContent = `You have ${all} order${all !== 1 ? 's' : ''} in total (${pending} pending acceptance).`;
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.order-filter-pill').forEach(b => {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-secondary');
+            });
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-primary');
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('orders-list-container');
+            const search = (document.getElementById('order-search').value || '').toLowerCase();
+
+            const filtered = ordersList.filter(o => {
+                const matchesFilter = (currentFilter === 'ALL') || (o.orderStatus === currentFilter);
+                const searchTxt = `#${o.id} ${o.customerName || ''} ${o.deliveryAddress || ''}`.toLowerCase();
+                const matchesSearch = !search || searchTxt.includes(search);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+                        <i class="fa-solid fa-clipboard-check" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>No orders found</h3>
+                        <p style="color: var(--text-muted);">There are no orders matching this view.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(o => {
+                const status = o.orderStatus || 'PENDING';
+                const statusBadge = status === 'DELIVERED' ? 'badge-delivered' :
+                                    status === 'PENDING' ? 'badge-pending' :
+                                    status === 'CANCELLED' ? 'badge-cancelled' : 'badge-secondary';
+                const items = o.orderItems || [];
+                const orderDate = o.orderDate ? new Date(o.orderDate).toLocaleString('en-IN') : '—';
+
+                return `
+                <div class="farmer-order-card fade-in-up">
+                    <div class="order-head">
+                        <div>
+                            <span style="font-size:1.1rem; font-weight:700; color:var(--primary);">Order #${o.id}</span>
+                            <span style="font-size:0.85rem; color:var(--text-muted); margin-left:0.75rem;">
+                                <i class="fa-solid fa-clock"></i> ${orderDate}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="badge ${statusBadge}">${status.replace(/_/g, ' ')}</span>
+                            <span style="font-size:1.25rem; font-weight:800; color:var(--primary);">₹${Number(o.finalAmount || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div class="order-content">
+                        <div class="grid grid-cols-3 gap-2" style="margin-bottom:1rem; font-size:0.875rem;">
+                            <div>
+                                <span style="color:var(--text-muted); display:block;">Customer</span>
+                                <strong>${o.customerName || 'Customer'}</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-muted); display:block;">Delivery Method & Address</span>
+                                <strong>${o.deliveryMethod || 'Doorstep'}</strong>: ${o.deliveryAddress || 'Farm Pickup'}
+                            </div>
+                            <div>
+                                <span style="color:var(--text-muted); display:block;">Payment Info</span>
+                                <strong>${o.paymentMethod || 'COD'}</strong> (${o.paymentStatus || 'PENDING'})
+                            </div>
+                        </div>
+
+                        <div style="background:var(--bg-alt); padding:0.75rem 1rem; border-radius:var(--radius-md);">
+                            <div style="font-weight:600; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">Crops in Order:</div>
+                            <table class="order-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produce Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price per Unit</th>
+                                        <th style="text-align:right;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${items.map(i => `
+                                        <tr>
+                                            <td><strong>${i.productName}</strong></td>
+                                            <td>${i.quantity}</td>
+                                            <td>₹${Number(i.unitPrice).toFixed(2)}</td>
+                                            <td style="text-align:right;">₹${Number(i.subtotal).toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            <div class="flex justify-between" style="font-size:0.9rem; margin-top:0.5rem; font-weight:700;">
+                                <span>Delivery Fee: ₹${Number(o.deliveryFee || 0).toFixed(2)}</span>
+                                <span style="color:var(--primary); font-size:1rem;">Total Harvest Value: ₹${Number(o.finalAmount).toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="action-row">
+                            <a href="/pages/order-tracking.html?id=${o.id}" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-map-location-dot"></i> Track Live
+                            </a>
+
+                            ${status === 'PENDING' ? `
+                                <button class="btn btn-outline btn-sm" style="color:#c62828; border-color:#ef9a9a;" onclick="updateOrderStatus(${o.id}, 'CANCELLED')">
+                                    <i class="fa-solid fa-xmark"></i> Reject
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus(${o.id}, 'ACCEPTED')">
+                                    <i class="fa-solid fa-check"></i> Accept Order
+                                </button>
+                            ` : ''}
+
+                            ${status === 'ACCEPTED' ? `
+                                <button class="btn btn-gold btn-sm" onclick="updateOrderStatus(${o.id}, 'PACKED')">
+                                    <i class="fa-solid fa-boxes-packing"></i> Mark Fresh Packed
+                                </button>
+                            ` : ''}
+
+                            ${status === 'PACKED' ? `
+                                <button class="btn btn-outline btn-sm" style="color:#2e7d32; border-color:#81c784;" onclick="updateOrderStatus(${o.id}, 'OUT_FOR_DELIVERY')">
+                                    <i class="fa-solid fa-truck-fast"></i> Dispatch with Delivery Rider
+                                </button>
+                            ` : ''}
+
+                            ${status === 'OUT_FOR_DELIVERY' ? `
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus(${o.id}, 'DELIVERED')">
+                                    <i class="fa-solid fa-house-circle-check"></i> Complete Delivery
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await Api.patch(`/api/farmer/orders/${orderId}/status`, { status: newStatus });
+                if (window.Toast) Toast.success(`Order #${orderId} updated to ${newStatus}`);
+                loadFarmerOrders();
+            } catch (err) {
+                if (window.Toast) Toast.error(err.message || 'Failed to update order status');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFarmerOrders);
+    </script>
+</body>
+</html>

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
@@ -46,8 +47,33 @@ public class ReviewService {
     }
 
     private ReviewResponse toResponse(Review r) {
-        return ReviewResponse.builder().id(r.getId()).customerId(r.getCustomer().getId())
-                .customerName(r.getCustomer().getFullName()).productId(r.getProduct().getId())
-                .rating(r.getRating()).comment(r.getComment()).createdAt(r.getCreatedAt()).build();
+        if (r == null) return null;
+        Long customerId = null;
+        String customerName = "Verified Customer";
+        try {
+            if (r.getCustomer() != null) {
+                customerId = r.getCustomer().getId();
+                if (r.getCustomer().getFullName() != null) {
+                    customerName = r.getCustomer().getFullName();
+                }
+            }
+        } catch (Exception ignored) {}
+
+        Long productId = null;
+        try {
+            if (r.getProduct() != null) {
+                productId = r.getProduct().getId();
+            }
+        } catch (Exception ignored) {}
+
+        return ReviewResponse.builder()
+                .id(r.getId())
+                .customerId(customerId)
+                .customerName(customerName)
+                .productId(productId)
+                .rating(r.getRating() != null ? r.getRating() : 5)
+                .comment(r.getComment())
+                .createdAt(r.getCreatedAt())
+                .build();
     }
 }

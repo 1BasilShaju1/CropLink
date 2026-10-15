@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
@@ -20,6 +23,7 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    @Transactional
     public Category create(String name, String description) {
         if (categoryRepository.findByName(name).isPresent()) {
             throw new AppException("Category already exists", 400);
@@ -28,6 +32,7 @@ public class CategoryService {
         return categoryRepository.save(cat);
     }
 
+    @Transactional
     public Category update(Long id, String name, String description, String status) {
         Category cat = categoryRepository.findById(id).orElseThrow(() -> new AppException("Category not found", 404));
         if (name != null) cat.setName(name);
@@ -36,6 +41,7 @@ public class CategoryService {
         return categoryRepository.save(cat);
     }
 
+    @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);
     }

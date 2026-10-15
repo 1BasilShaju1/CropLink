@@ -23,7 +23,7 @@ public class OrderItem {
     @EqualsAndHashCode.Exclude
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

@@ -20,8 +20,8 @@ public class FileStorageService {
         try {
             Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
             Files.createDirectories(uploadPath);
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename()
-                    .replaceAll("[^a-zA-Z0-9._-]", "_");
+            String orig = file.getOriginalFilename() != null ? file.getOriginalFilename() : "crop.jpg";
+            String filename = UUID.randomUUID() + "_" + orig.replaceAll("[^a-zA-Z0-9._-]", "_");
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             return "/uploads/products/" + filename;

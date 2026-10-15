@@ -92,7 +92,7 @@
                 <i class="fa-solid fa-circle-plus"></i>
                 <span>Add Crop</span>
             </a>
-            <a href="/pages/customer-orders.html" class="sidebar-link">
+            <a href="/pages/farmer-orders.html" class="sidebar-link">
                 <i class="fa-solid fa-truck-ramp-box"></i>
                 <span>Order Deliveries</span>
             </a>
@@ -321,8 +321,8 @@
     <script src="/js/api.js"></script>
     <script src="/js/effects.js"></script>
     <script>
-        // Auth Guard: Only FARMER allowed
-        Api.requireAuth(['FARMER']);
+        // Auth Guard: FARMER and ADMIN
+        Api.requireAuth(['FARMER', 'ADMIN']);
 
         // Set default harvest date to today
         document.getElementById('prod-harvest-date').valueAsDate = new Date();

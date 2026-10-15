@@ -21,7 +21,7 @@ public class CartItem {
     @EqualsAndHashCode.Exclude
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

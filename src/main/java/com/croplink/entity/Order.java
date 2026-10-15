@@ -21,19 +21,19 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "farmer_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User farmer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "delivery_partner_id", nullable = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

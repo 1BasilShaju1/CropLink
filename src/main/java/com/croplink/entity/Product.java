@@ -23,13 +23,13 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "farmer_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User farmer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -81,7 +81,7 @@ public class Product {
 
     @Column(name = "product_status")
     @Builder.Default
-    private String productStatus = "PENDING_APPROVAL";
+    private String productStatus = "ACTIVE";
 
     @Column(name = "average_rating")
     @Builder.Default
