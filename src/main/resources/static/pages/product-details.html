@@ -315,37 +315,28 @@
     <script src="/js/effects.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('id') || '1';
-
-        // Sample product default
-        let currentProduct = {
-            id: Number(productId),
-            name: 'Organic Vine-Ripened Tomatoes',
-            farmerName: 'Ramesh Patel, Nashik Orchards',
-            price: 45,
-            unit: 'kg',
-            stock: 180,
-            qualityGrade: 'Grade A (Export Prime)',
-            ripenessLevel: 'Ready to Eat',
-            freshnessStatus: 'Harvested Today',
-            organicStatus: '100% Certified Organic',
-            harvestDate: 'Oct 14, 2026',
-            description: 'Nurtured organically in deep black volcanic soil without any chemical sprays. Sweet flavor and firm texture, harvested this dawn.',
-            images: [
-                'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800',
-                'https://images.unsplash.com/photo-1546470427-e26264be0b11?w=800',
-                'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=800'
-            ]
-        };
+        const productId = urlParams.get('id');
+        let currentProduct = null;
 
         async function loadProductDetails() {
             try {
-                const res = await Api.get(`/api/products/public/${productId}`);
-                if (res && res.data) {
-                    currentProduct = res.data;
+                if (!productId || !/^\d+$/.test(productId)) {
+                    throw new Error('A valid product was not specified.');
                 }
+                const res = await Api.get(`/api/products/public/${productId}`);
+                if (!res || !res.data) {
+                    throw new Error('The requested product could not be found.');
+                }
+                currentProduct = res.data;
             } catch (e) {
-                console.warn('Could not fetch from server, using display fallback', e);
+                document.getElementById('crumb-product-name').textContent = 'Product unavailable';
+                document.getElementById('product-title').textContent = 'Product unavailable';
+                document.getElementById('product-description').textContent = e.message || 'Could not load this product. Please try again later.';
+                document.getElementById('add-to-cart-btn').disabled = true;
+                document.getElementById('buy-now-btn').disabled = true;
+                document.getElementById('reviews-list').innerHTML = '';
+                console.error('Could not load product details:', e);
+                return;
             }
 
             // Bind values
@@ -425,12 +416,14 @@
 
         // Add to Cart
         document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            if (!currentProduct) return;
             const qty = Number(qtyInput.value) || 1;
             Api.cart.addItem(currentProduct, qty);
         });
 
         // Buy Now
         document.getElementById('buy-now-btn').addEventListener('click', () => {
+            if (!currentProduct) return;
             const qty = Number(qtyInput.value) || 1;
             Api.cart.addItem(currentProduct, qty);
             window.location.href = '/pages/checkout.html';

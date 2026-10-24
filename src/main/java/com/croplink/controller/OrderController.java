@@ -20,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/customer/orders")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody OrderRequest request) {

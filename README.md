@@ -262,8 +262,7 @@ flowchart LR
    - Click **Reference Variable** ➔ Select your **MySQL** service ➔ Select `MYSQLHOST`.
    - Repeat to reference: `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`.
    *(Or simply add a single variable `SPRING_DATASOURCE_URL` referencing `${{MySQL.DATABASE_URL}}`)*.
-4. Add one custom variable for security:
-   - `JWT_SECRET` = `CropLinkSecretKeyForJWTTokenGenerationThatIsLongEnough2024`
+4. Add a unique random `JWT_SECRET` of at least 32 bytes. Do not reuse the example secret from an older deployment; keep the value in the provider's secret manager.
 
 ---
 
@@ -327,7 +326,9 @@ Scroll down to the **Environment Variables** section on Render and add:
 | `DB_NAME` | `croplink_db` (or defaultdb) | Database name |
 | `DB_USERNAME` | `your-db-user` | MySQL username |
 | `DB_PASSWORD` | `your-db-password` | MySQL password |
-| `JWT_SECRET` | `CropLinkSecretKeyForJWTTokenGenerationThatIsLongEnough2024` | 256-bit secret for signing tokens |
+| `JWT_SECRET` | A unique random value of at least 32 bytes | Secret for signing tokens; generate and store it securely |
+| `CORS_ALLOWED_ORIGINS` | `https://your-frontend.example.com` | Comma-separated exact origins when hosting the frontend separately; same-origin deployments need no override |
+| `UPLOAD_DIR` | `uploads/products` | Local directory for uploaded product images; use persistent storage in production |
 
 > **Note:** Alternatively, if your cloud database provider provides a single full JDBC URL, you can simply set:  
 > `DATABASE_URL` = `jdbc:mysql://<user>:<password>@<host>:<port>/<dbname>?useSSL=true`

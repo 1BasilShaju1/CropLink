@@ -15,8 +15,16 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path uploadRoot = uploadPath.getParent();
+        if (uploadRoot == null) {
+            throw new IllegalStateException("Upload directory must have a parent directory");
+        }
+        String resourceLocation = uploadRoot.toUri().toString();
+        if (!resourceLocation.endsWith("/")) {
+            resourceLocation += "/";
+        }
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath.getParent().toString() + "/");
+                .addResourceLocations(resourceLocation);
     }
 }

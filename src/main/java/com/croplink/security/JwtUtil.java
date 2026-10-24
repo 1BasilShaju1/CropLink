@@ -2,6 +2,7 @@ package com.croplink.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,16 @@ public class JwtUtil {
     private String secret;
     @Value("${app.jwt.expiration-ms}")
     private long expirationMs;
+
+    @PostConstruct
+    void validateConfiguration() {
+        if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT_SECRET must contain at least 32 UTF-8 bytes");
+        }
+        if (expirationMs <= 0) {
+            throw new IllegalStateException("app.jwt.expiration-ms must be positive");
+        }
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));

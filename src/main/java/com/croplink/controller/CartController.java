@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/customer/cart")
 @RequiredArgsConstructor
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasRole('CUSTOMER')")
 public class CartController {
     private final CartService cartService;
 

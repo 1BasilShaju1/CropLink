@@ -80,29 +80,29 @@
                 <div class="grid grid-cols-4 gap-3">
                     <div class="stats-card fade-in-up">
                         <div>
-                            <div class="stats-value">500+</div>
-                            <div class="stats-label">Registered Farmers</div>
+                            <div class="stats-value">Direct</div>
+                            <div class="stats-label">Farmer-to-customer marketplace</div>
                         </div>
                         <div class="stats-icon-wrap"><i class="fa-solid fa-wheat-awn"></i></div>
                     </div>
                     <div class="stats-card fade-in-up">
                         <div>
-                            <div class="stats-value">10,000+</div>
-                            <div class="stats-label">Fresh Products</div>
+                            <div class="stats-value">Fresh</div>
+                            <div class="stats-label">Current marketplace listings</div>
                         </div>
                         <div class="stats-icon-wrap gold"><i class="fa-solid fa-apple-whole"></i></div>
                     </div>
                     <div class="stats-card fade-in-up">
                         <div>
-                            <div class="stats-value">50,000+</div>
-                            <div class="stats-label">Happy Customers</div>
+                            <div class="stats-value">Flexible</div>
+                            <div class="stats-label">Delivery or farm pickup</div>
                         </div>
                         <div class="stats-icon-wrap blue"><i class="fa-solid fa-users"></i></div>
                     </div>
                     <div class="stats-card fade-in-up">
                         <div>
-                            <div class="stats-value">99.8%</div>
-                            <div class="stats-label">Freshness Rating</div>
+                            <div class="stats-value">Fair</div>
+                            <div class="stats-label">Prices set by farmers</div>
                         </div>
                         <div class="stats-icon-wrap purple"><i class="fa-solid fa-award"></i></div>
                     </div>
@@ -344,56 +344,8 @@
     <script src="/js/api.js"></script>
     <script src="/js/effects.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Sample featured crops for immediate rich rendering + API fetch
-            const fallbackProducts = [
-                {
-                    id: 101,
-                    name: 'Fresh Organic Vine Tomatoes',
-                    farmerName: 'Ramesh Patel, Nashik Farms',
-                    price: 45,
-                    unit: 'kg',
-                    rating: 4.8,
-                    ratingCount: 32,
-                    organicStatus: '100% Organic',
-                    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=80'
-                },
-                {
-                    id: 102,
-                    name: 'Sweet Alphonso Mangoes',
-                    farmerName: 'Suresh Gaikwad, Ratnagiri',
-                    price: 450,
-                    unit: 'dozen',
-                    rating: 4.9,
-                    ratingCount: 58,
-                    organicStatus: 'Naturally Ripened',
-                    imageUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500&auto=format&fit=crop&q=80'
-                },
-                {
-                    id: 103,
-                    name: 'Crisp Green Spinach (Palak)',
-                    farmerName: 'Kavita Devi, Meerut Greenery',
-                    price: 30,
-                    unit: 'bunch',
-                    rating: 4.7,
-                    ratingCount: 19,
-                    organicStatus: 'Chemical Free',
-                    imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500&auto=format&fit=crop&q=80'
-                },
-                {
-                    id: 104,
-                    name: 'Traditional Basmati Paddy Rice',
-                    farmerName: 'Harpreet Singh, Karnal Fields',
-                    price: 110,
-                    unit: 'kg',
-                    rating: 4.9,
-                    ratingCount: 44,
-                    organicStatus: 'Direct Mill',
-                    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop&q=80'
-                }
-            ];
-
-            const grid = document.getElementById('featured-products-grid');
+    document.addEventListener('DOMContentLoaded', async () => {
+        const grid = document.getElementById('featured-products-grid');
 
             const renderProducts = (products) => {
                 grid.innerHTML = products.map(p => {
@@ -447,18 +399,17 @@
                 });
             };
 
-            // Render fallback immediately for instant visual delight
-            renderProducts(fallbackProducts);
-
-            // Fetch live API products if available
             try {
                 const res = await Api.get('/api/products?featured=true');
                 const list = res?.data?.content || (Array.isArray(res?.data) ? res.data : []);
-                if (list.length > 0) {
-                    renderProducts(list.slice(0, 4));
+                if (!list.length) {
+                    grid.innerHTML = '<p class="text-muted">No products are currently listed.</p>';
+                    return;
                 }
+                renderProducts(list.slice(0, 4));
             } catch (err) {
-                // Keep fallback gracefully
+                grid.innerHTML = '<p class="text-muted">Featured products are temporarily unavailable. Please try again later.</p>';
+                console.error('Could not load featured products:', err);
             }
         });
     </script>
