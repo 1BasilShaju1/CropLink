@@ -30,6 +30,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT COALESCE(SUM(o.finalAmount), 0) FROM Order o WHERE o.orderStatus = 'DELIVERED'")
     BigDecimal totalRevenue();
 
-    @Query("SELECT o FROM Order o WHERE o.orderStatus = 'PACKED' AND o.deliveryPartner IS NULL")
+    @Query("SELECT o FROM Order o WHERE o.orderStatus = 'PACKED' AND o.deliveryPartner IS NULL AND (o.deliveryMethod IS NULL OR o.deliveryMethod != 'Farm Pickup')")
     Page<Order> findPackedOrdersWithoutPartner(Pageable pageable);
 }

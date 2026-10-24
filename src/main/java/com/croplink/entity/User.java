@@ -60,6 +60,7 @@ public class User {
     public enum UserStatus {
         ACTIVE,
         INACTIVE,
-        BLOCKED
+        BLOCKED,
+        PENDING_APPROVAL
     }
 }

@@ -106,7 +106,7 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif;min-height:100vh}
 if (!Api.isLoggedIn()) window.location.href = '/pages/login.html';
 
 const roleIcons = { FARMER:'🌾', CUSTOMER:'🛒', DELIVERY_PARTNER:'🚚', ADMIN:'⚙️' };
-const dashLinks = { FARMER:'/pages/farmer-dashboard.html', CUSTOMER:'/pages/products.html', DELIVERY_PARTNER:'/pages/delivery-dashboard.html', ADMIN:'/pages/admin-dashboard.html' };
+const dashLinks = { FARMER:'/pages/farmer-dashboard.html', CUSTOMER:'/pages/customer-dashboard.html', DELIVERY_PARTNER:'/pages/delivery-dashboard.html', ADMIN:'/pages/admin-dashboard.html' };
 
 async function loadProfile() {
   try {
@@ -114,12 +114,14 @@ async function loadProfile() {
     const u = res.data;
     document.getElementById('hero-name').textContent = u.fullName;
     document.getElementById('hero-email').textContent = u.email;
-    document.getElementById('hero-role').textContent = (roleIcons[u.role] || '') + ' ' + u.role.replace('_',' ');
+    const displayRole = u.role === 'DELIVERY_PARTNER' ? 'CropRider (Delivery Partner)' : u.role.replace('_',' ');
+    document.getElementById('hero-role').textContent = (roleIcons[u.role] || '') + ' ' + displayRole;
+    document.getElementById('role').value = displayRole;
     document.getElementById('avatar-icon').textContent = roleIcons[u.role] || '👤';
     document.getElementById('fullName').value = u.fullName;
     document.getElementById('email').value = u.email;
     document.getElementById('phone').value = u.phone || '';
-    document.getElementById('role').value = u.role.replace('_',' ');
+    
     // Set dashboard link
     const dash = dashLinks[u.role] || '/';
     document.getElementById('dash-link').href = dash;

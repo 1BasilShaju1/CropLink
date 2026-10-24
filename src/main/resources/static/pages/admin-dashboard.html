@@ -87,24 +87,59 @@
     <div id="tab-dashboard" class="tab-content active">
       <div class="stats-grid" id="stats-grid">
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="s-users">—</h3><p>Total Users</p></div></div>
-        <div class="stat-card" style="border-color:#f9a825"><div class="stat-icon" style="background:#fff8e1;color:#f57f17"><i class="fas fa-tractor"></i></div><div class="stat-info"><h3 id="s-farmers">—</h3><p>Farmers</p></div></div>
+        <div class="stat-card" style="border-color:#f9a825"><div class="stat-icon" style="background:#fff8e1;color:#f57f17"><i class="fas fa-tractor"></i></div><div class="stat-info"><h3 id="s-farmers">—</h3><p>Active Farmers</p></div></div>
+        <div class="stat-card" style="border-color:#e65100"><div class="stat-icon" style="background:#fff3e0;color:#e65100"><i class="fas fa-user-clock"></i></div><div class="stat-info"><h3 id="s-pending-farmers">—</h3><p>Pending Farmers</p></div></div>
         <div class="stat-card" style="border-color:#7b1fa2"><div class="stat-icon" style="background:#f3e5f5;color:#7b1fa2"><i class="fas fa-user-tie"></i></div><div class="stat-info"><h3 id="s-customers">—</h3><p>Customers</p></div></div>
-        <div class="stat-card" style="border-color:#1565c0"><div class="stat-icon" style="background:#e3f2fd;color:#1565c0"><i class="fas fa-seedling"></i></div><div class="stat-info"><h3 id="s-products">—</h3><p>Total Products</p></div></div>
+        <div class="stat-card" style="border-color:#1565c0"><div class="stat-icon" style="background:#e3f2fd;color:#1565c0"><i class="fas fa-seedling"></i></div><div class="stat-info"><h3 id="s-products">—</h3><p>Total Crops</p></div></div>
         <div class="stat-card" style="border-color:#00897b"><div class="stat-icon" style="background:#e0f2f1;color:#00897b"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><h3 id="s-orders">—</h3><p>Total Orders</p></div></div>
+        <div class="stat-card" style="border-color:#fb8c00"><div class="stat-icon" style="background:#fff8e1;color:#fb8c00"><i class="fas fa-clock"></i></div><div class="stat-info"><h3 id="s-pending-orders-card">—</h3><p>Pending Orders</p></div></div>
         <div class="stat-card" style="border-color:#e53935"><div class="stat-icon" style="background:#ffebee;color:#e53935"><i class="fas fa-rupee-sign"></i></div><div class="stat-info"><h3 id="s-revenue">—</h3><p>Revenue (₹)</p></div></div>
       </div>
       <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
         <h3 style="color:#1b5e20;margin-bottom:16px"><i class="fas fa-info-circle"></i> Platform Overview</h3>
         <p style="color:#666;line-height:1.7">Welcome to the CropLink admin panel. Use the sidebar to manage users, products, orders, and categories. All platform activity is monitored here.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-top:20px">
           <div style="background:#e8f5e9;border-radius:10px;padding:16px">
-            <h4 style="color:#2e7d32"><i class="fas fa-check-circle"></i> Active Products</h4>
+            <h4 style="color:#2e7d32"><i class="fas fa-check-circle"></i> Active Crops</h4>
             <p id="s-active-products" style="font-size:1.8rem;font-weight:700;color:#1b5e20">—</p>
           </div>
           <div style="background:#fff3e0;border-radius:10px;padding:16px">
             <h4 style="color:#e65100"><i class="fas fa-clock"></i> Pending Orders</h4>
             <p id="s-pending-orders" style="font-size:1.8rem;font-weight:700;color:#e65100">—</p>
           </div>
+          <div style="background:#fbe9e7;border-radius:10px;padding:16px">
+            <h4 style="color:#d84315"><i class="fas fa-user-clock"></i> Pending Farmers</h4>
+            <p id="s-pending-farmers-box" style="font-size:1.8rem;font-weight:700;color:#d84315">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Crops & Categories Live Backend Overview -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px">
+        <div style="background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h3 style="color:#1b5e20;font-size:1.1rem"><i class="fas fa-seedling"></i> Live Crop Records</h3>
+            <button class="btn-sm btn-green" onclick="showTab('products')">View All</button>
+          </div>
+          <table class="data-table" style="font-size:0.85rem">
+            <thead><tr><th>ID</th><th>Crop</th><th>Farmer</th><th>Price</th><th>Status</th></tr></thead>
+            <tbody id="dash-crops-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading crops...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h3 style="color:#1b5e20;font-size:1.1rem"><i class="fas fa-tags"></i> Active Categories</h3>
+            <button class="btn-sm btn-green" onclick="showTab('categories')">Manage</button>
+          </div>
+          <table class="data-table" style="font-size:0.85rem">
+            <thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Status</th></tr></thead>
+            <tbody id="dash-cats-tbody">
+              <tr><td colspan="4" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -212,14 +247,274 @@ function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-sidebar nav a').forEach(a => a.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  } else {
+    const navItem = document.querySelector(`.admin-sidebar nav a[onclick*="${tab}"]`);
+    if (navItem) navItem.classList.add('active');
+  }
   const titles = {dashboard:'Dashboard',users:'Manage Users',products:'Manage Products',orders:'All Orders',categories:'Categories'};
   document.getElementById('page-title').innerHTML = '<i class="fas fa-tachometer-alt"></i> ' + (titles[tab] || tab);
   if (tab === 'users') loadUsers();
   else if (tab === 'products') loadProducts();
   else if (tab === 'orders') loadOrders();
   else if (tab === 'categories') loadCategories();
-  else if (tab === 'dashboard') loadStats();
+  else if (tab === 'dashboard') loadDashboardAll();
+}
+
+async function loadStats() {
+  try {
+    const res = await Api.get('/api/admin/dashboard');
+    const s = res.data || {};
+    document.getElementById('s-users').textContent = s.totalUsers ?? 0;
+    document.getElementById('s-farmers').textContent = s.totalFarmers ?? 0;
+    document.getElementById('s-pending-farmers').textContent = s.pendingFarmers ?? 0;
+    if (document.getElementById('s-pending-farmers-box')) {
+      document.getElementById('s-pending-farmers-box').textContent = s.pendingFarmers ?? 0;
+    }
+    document.getElementById('s-customers').textContent = s.totalCustomers ?? 0;
+    document.getElementById('s-products').textContent = s.totalProducts ?? 0;
+    document.getElementById('s-orders').textContent = s.totalOrders ?? 0;
+    if (document.getElementById('s-pending-orders-card')) {
+      document.getElementById('s-pending-orders-card').textContent = s.pendingOrders ?? 0;
+    }
+    document.getElementById('s-revenue').textContent = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('s-active-products').textContent = s.activeProducts ?? 0;
+    document.getElementById('s-pending-orders').textContent = s.pendingOrders ?? 0;
+  } catch(e) {
+    console.error('loadStats error:', e);
+    showToast('Failed to load dashboard stats: ' + (e.message || ''), 'error');
+  }
+}
+
+async function loadOverviewCrops() {
+  const tbody = document.getElementById('dash-crops-tbody');
+  if (!tbody) return;
+  try {
+    const res = await Api.get('/api/admin/products?page=0&size=5');
+    const products = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+    if (!products.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:#888">No crops listed yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = products.slice(0, 5).map(p => `
+      <tr>
+        <td>#${p.id}</td>
+        <td><strong>${p.name || ''}</strong></td>
+        <td>${p.farmerName || 'Farmer #' + p.farmerId}</td>
+        <td>₹${p.price}/${p.unit || 'kg'}</td>
+        <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error('loadOverviewCrops error:', e);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:#d32f2f">Failed to load crops <button class="btn-sm btn-green" onclick="loadOverviewCrops()" style="margin-left:8px">Retry</button></td></tr>';
+  }
+}
+
+async function loadOverviewCategories() {
+  const tbody = document.getElementById('dash-cats-tbody');
+  if (!tbody) return;
+  try {
+    const res = await Api.get('/api/admin/categories');
+    const cats = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+    if (!cats.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:#888">No categories found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = cats.slice(0, 5).map(c => `
+      <tr>
+        <td>#${c.id}</td>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.description || '—'}</td>
+        <td><span class="badge badge-${c.status}">${c.status}</span></td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error('loadOverviewCategories error:', e);
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:#d32f2f">Failed to load categories <button class="btn-sm btn-green" onclick="loadOverviewCategories()" style="margin-left:8px">Retry</button></td></tr>';
+  }
+}
+
+async function loadDashboardAll() {
+  await Promise.allSettled([
+    loadStats(),
+    loadOverviewCrops(),
+    loadOverviewCategories()
+  ]);
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>';
+  try {
+    const res = await Api.get('/api/admin/users?page=0&size=100');
+    allUsers = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+    renderUsers(allUsers);
+  } catch(e) {
+    console.error('loadUsers error:', e);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#d32f2f">Failed to load users: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadUsers()" style="margin-top:8px">Retry</button></td></tr>';
+    showToast('Failed to load users: ' + (e.message || ''), 'error');
+  }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-tbody');
+  if (!users || !users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>#${u.id}</td>
+      <td><strong>${u.fullName || ''}</strong></td>
+      <td>${u.email}</td>
+      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td><span class="badge badge-${u.status}">${u.status}</span></td>
+      <td>
+        ${u.status !== 'BLOCKED' ? `<button class="btn-sm btn-red" onclick="updateUserStatus(${u.id},'BLOCKED')">Block</button>` : `<button class="btn-sm btn-green" onclick="updateUserStatus(${u.id},'ACTIVE')">Activate</button>`}
+      </td>
+    </tr>`).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  renderUsers(allUsers.filter(u => (u.fullName && u.fullName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q))));
+}
+
+async function updateUserStatus(userId, status) {
+  try {
+    await Api.patch(`/api/admin/users/${userId}/status`, { status });
+    showToast('User status updated to ' + status, 'success');
+    loadUsers();
+    loadStats();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadProducts() {
+  const status = document.getElementById('product-status-filter')?.value || '';
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading products...</td></tr>';
+  try {
+    const res = await Api.get('/api/admin/products?page=0&size=100');
+    let products = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+    if (status) products = products.filter(p => p.productStatus === status);
+    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products found</td></tr>'; return; }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td>#${p.id}</td>
+        <td><strong>${p.name || ''}</strong></td>
+        <td>${p.farmerName || 'Farmer #' + p.farmerId}</td>
+        <td>${p.categoryName || 'General'}</td>
+        <td>₹${p.price} / ${p.unit || 'kg'}</td>
+        <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap">
+          ${p.productStatus === 'PENDING_APPROVAL' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button>
+            <button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>
+          ` : ''}
+          ${p.productStatus === 'ACTIVE' ? `
+            <button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>
+          ` : ''}
+          ${p.productStatus === 'INACTIVE' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>
+          ` : ''}
+          ${p.productStatus === 'REJECTED' ? `
+            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Re-Approve</button>
+          ` : ''}
+        </td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error('loadProducts error:', e);
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load products: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadProducts()" style="margin-top:8px">Retry</button></td></tr>';
+    showToast('Failed to load products: ' + (e.message || ''), 'error');
+  }
+}
+
+async function updateProductStatus(productId, status) {
+  try {
+    await Api.patch(`/api/admin/products/${productId}/status`, { status });
+    showToast('Product status updated to ' + status, 'success');
+    loadProducts();
+    loadDashboardAll();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadOrders() {
+  const tbody = document.getElementById('orders-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading orders...</td></tr>';
+  try {
+    const res = await Api.get('/api/admin/orders?page=0&size=100');
+    const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders found</td></tr>'; return; }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td><strong>#${o.id}</strong></td>
+        <td>${o.customerName || 'Customer #' + o.customerId}</td>
+        <td>${o.farmerName || 'Farmer #' + o.farmerId}</td>
+        <td><strong>₹${o.finalAmount}</strong></td>
+        <td>${o.deliveryMethod || 'Standard'}</td>
+        <td><span class="badge badge-${o.orderStatus}">${o.orderStatus}</span></td>
+        <td>${o.orderDate ? new Date(o.orderDate).toLocaleDateString('en-IN') : '—'}</td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error('loadOrders error:', e);
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load orders: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadOrders()" style="margin-top:8px">Retry</button></td></tr>';
+    showToast('Failed to load orders: ' + (e.message || ''), 'error');
+  }
+}
+
+async function loadCategories() {
+  const tbody = document.getElementById('categories-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>';
+  try {
+    const res = await Api.get('/api/admin/categories');
+    const cats = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories found</td></tr>'; return; }
+    tbody.innerHTML = cats.map(c => `
+      <tr>
+        <td>#${c.id}</td>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.description || '—'}</td>
+        <td><span class="badge badge-${c.status}">${c.status}</span></td>
+        <td>
+          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name.replace(/'/g, "\\'")}', '${(c.description||'').replace(/'/g, "\\"')}')">Edit</button>
+          <button class="btn-sm btn-red" onclick="deleteCategory(${c.id})" style="margin-left:6px">Delete</button>
+        </td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error('loadCategories error:', e);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#d32f2f">Failed to load categories: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadCategories()" style="margin-top:8px">Retry</button></td></tr>';
+    showToast('Failed to load categories: ' + (e.message || ''), 'error');
+  }
+}
+
+function openCatModal() { currentCatId = null; document.getElementById('cat-modal-title').textContent='Add Category'; document.getElementById('cat-name').value=''; document.getElementById('cat-desc').value=''; document.getElementById('cat-modal').classList.add('show'); }
+function editCategory(id, name, desc) { currentCatId = id; document.getElementById('cat-modal-title').textContent='Edit Category'; document.getElementById('cat-name').value=name; document.getElementById('cat-desc').value=desc; document.getElementById('cat-modal').classList.add('show'); }
+function closeCatModal() { document.getElementById('cat-modal').classList.remove('show'); }
+
+async function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  const description = document.getElementById('cat-desc').value.trim();
+  if (!name) { showToast('Name is required', 'error'); return; }
+  try {
+    if (currentCatId) await Api.put(`/api/admin/categories/${currentCatId}`, { name, description, status: 'ACTIVE' });
+    else await Api.post('/api/admin/categories', { name, description });
+    showToast('Category saved!', 'success');
+    closeCatModal();
+    loadCategories();
+    loadOverviewCategories();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  try {
+    await Api.delete(`/api/admin/categories/${id}`);
+    showToast('Deleted', 'success');
+    loadCategories();
+    loadOverviewCategories();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
+
+loadStats();
 }
 
 async function loadStats() {
@@ -396,7 +691,7 @@ async function deleteCategory(id) {
 
 function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
 
-loadStats();
+loadDashboardAll();
 </script>
 </body>
 </html>

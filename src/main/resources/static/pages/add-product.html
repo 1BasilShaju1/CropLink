@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List New Crop | CropLink Farm2Door</title>
+    <title>Add Harvest & List Crop | CropLink Farm2Door</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/css/main.css">
     <style>
@@ -106,7 +106,7 @@
             <div style="max-width: 900px; margin: 0 auto;">
                 <div class="flex items-center justify-between" style="margin-bottom: 1.5rem;">
                     <div>
-                        <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">List a New Farm Harvest</h1>
+                        <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;" id="page-heading">Add Harvest & List Crop</h1>
                         <p style="color: var(--text-muted); font-size: 0.95rem;">Provide accurate harvest, quality, and pricing data for direct consumer discovery.</p>
                     </div>
                     <a href="/pages/farmer-products.html" class="btn btn-outline btn-sm">
@@ -115,6 +115,21 @@
                 </div>
 
                 <form id="add-product-form" class="card" style="padding: 2.5rem;">
+                    <!-- Crop Mode Selection -->
+                    <div style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(249, 168, 37, 0.08) 100%); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem;">
+                        <label class="form-label" for="crop-selector" style="font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                            <i class="fa-solid fa-wheat-awn"></i> Select Crop Action:
+                        </label>
+                        <select id="crop-selector" class="form-control" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">
+                            <option value="NEW">➕ List a Brand New Crop Variety</option>
+                        </select>
+                        <div id="crop-selector-hint" style="font-size: 0.85rem; color: var(--text-muted);">
+                            Choose an existing crop to log a new fresh harvest batch, or keep "List a Brand New Crop" to introduce a new variety.
+                        </div>
+                        <div id="no-crops-banner" style="display: none; margin-top: 0.75rem; padding: 0.75rem; background: #e8f5e9; border-radius: 6px; color: #1b5e20; font-size: 0.85rem;">
+                            <i class="fa-solid fa-seedling"></i> <strong>Welcome!</strong> You haven't registered any crops yet. Complete the form below to publish your first crop listing to the marketplace.
+                        </div>
+                    </div>
                     <!-- Basic Information -->
                     <h3 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-pen-to-square"></i> General Crop Details
@@ -324,6 +339,88 @@
         // Auth Guard: FARMER and ADMIN
         Api.requireAuth(['FARMER', 'ADMIN']);
 
+                let existingFarmerCrops = [];
+        let selectedCropId = 'NEW';
+
+        // Load eligible crops for the logged-in farmer
+        async function loadFarmerEligibleCrops() {
+            const selector = document.getElementById('crop-selector');
+            const noCropsBanner = document.getElementById('no-crops-banner');
+            try {
+                const res = await Api.get('/api/farmer/products');
+                existingFarmerCrops = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+                
+                if (existingFarmerCrops.length === 0) {
+                    noCropsBanner.style.display = 'block';
+                } else {
+                    noCropsBanner.style.display = 'none';
+                    existingFarmerCrops.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = `📦 Log Harvest: ${c.name} (Current: ₹${c.price}/${c.unit || 'kg'}, Stock: ${c.quantityAvailable})`;
+                        selector.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.warn('Failed to load farmer crops for selector:', e);
+            }
+        }
+
+        document.getElementById('crop-selector').addEventListener('change', (e) => {
+            selectedCropId = e.target.value;
+            const submitBtn = document.getElementById('submit-btn');
+            const pageHeading = document.getElementById('page-heading');
+            const hint = document.getElementById('crop-selector-hint');
+
+            if (selectedCropId === 'NEW') {
+                pageHeading.textContent = 'List a New Farm Harvest';
+                hint.textContent = 'Introducing a new crop variety to your farm inventory.';
+                submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publish Crop Listing';
+                
+                // Reset inputs
+                document.getElementById('prod-name').readOnly = false;
+                document.getElementById('prod-name').value = '';
+                document.getElementById('prod-category').disabled = false;
+                document.getElementById('prod-category').value = '';
+                document.getElementById('prod-desc').value = '';
+                document.getElementById('prod-unit').disabled = false;
+                document.getElementById('prod-price').value = '';
+                document.getElementById('prod-quantity').value = '';
+                document.getElementById('prod-location').value = '';
+            } else {
+                const crop = existingFarmerCrops.find(c => String(c.id) === String(selectedCropId));
+                if (crop) {
+                    pageHeading.textContent = `Log Harvest Batch: ${crop.name}`;
+                    hint.innerHTML = `<span style="color:var(--primary); font-weight:600;"><i class="fa-solid fa-check-circle"></i> Existing Crop Selected:</span> Logging a new harvest batch will add to current stock (${crop.quantityAvailable} ${crop.unit || 'kg'}) and update freshness parameters.`;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-leaf"></i> Record Harvest Batch';
+
+                    // Prefill
+                    document.getElementById('prod-name').value = crop.name;
+                    document.getElementById('prod-name').readOnly = true;
+                    if (crop.categoryId) {
+                        document.getElementById('prod-category').value = crop.categoryId;
+                        document.getElementById('prod-category').disabled = true;
+                    }
+                    document.getElementById('prod-desc').value = crop.description || '';
+                    if (crop.unit) {
+                        document.getElementById('prod-unit').value = crop.unit;
+                        document.getElementById('prod-unit').disabled = true;
+                    }
+                    document.getElementById('prod-price').value = crop.price || '';
+                    document.getElementById('prod-quantity').value = '';
+                    document.getElementById('prod-quantity').placeholder = 'Enter new batch quantity to add';
+                    if (crop.location) {
+                        document.getElementById('prod-location').value = crop.location;
+                    }
+                    if (crop.qualityGrade) document.getElementById('prod-grade').value = crop.qualityGrade;
+                    if (crop.ripenessLevel) document.getElementById('prod-ripeness').value = crop.ripenessLevel;
+                    if (crop.freshnessStatus) document.getElementById('prod-freshness').value = crop.freshnessStatus;
+                }
+            }
+        });
+
+        loadFarmerEligibleCrops();
+
         // Set default harvest date to today
         document.getElementById('prod-harvest-date').valueAsDate = new Date();
 
@@ -404,19 +501,40 @@
             });
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Listing Crop...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
             try {
-                const res = await Api.postForm('/api/farmer/products', formData);
-                Toast.success('Crop harvest listed successfully! It is now added to your harvests.');
+                if (selectedCropId && selectedCropId !== 'NEW') {
+                    // Harvest batch mode
+                    const harvestData = new FormData();
+                    harvestData.append('harvestDate', document.getElementById('prod-harvest-date').value);
+                    harvestData.append('quantityAvailable', document.getElementById('prod-quantity').value);
+                    harvestData.append('price', document.getElementById('prod-price').value);
+                    harvestData.append('ripenessLevel', document.getElementById('prod-ripeness').value);
+                    harvestData.append('freshnessStatus', document.getElementById('prod-freshness').value);
+                    harvestData.append('qualityGrade', document.getElementById('prod-grade').value);
+                    selectedFiles.forEach(file => {
+                        harvestData.append('images', file);
+                    });
+
+                    await Api.postForm(`/api/farmer/products/${selectedCropId}/harvest`, harvestData);
+                    Toast.success('Harvest batch logged successfully! Inventory updated.');
+                } else {
+                    // Brand new crop listing
+                    await Api.postForm('/api/farmer/products', formData);
+                    Toast.success('Crop harvest listed successfully! It is now in your active crop inventory.');
+                }
+
                 setTimeout(() => {
                     window.location.href = '/pages/farmer-products.html';
                 }, 1200);
 
             } catch (err) {
-                Toast.error(err.message || 'Failed to list product. Please check required fields.');
+                Toast.error(err.message || 'Failed to save crop data. Please check required fields.');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publish Crop Listing';
+                submitBtn.innerHTML = selectedCropId !== 'NEW' ? 
+                    '<i class="fa-solid fa-leaf"></i> Record Harvest Batch' : 
+                    '<i class="fa-solid fa-cloud-arrow-up"></i> Publish Crop Listing';
             }
         });
     </script>

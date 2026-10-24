@@ -216,7 +216,7 @@ function renderDetails(o) {
     <div class="info-cell"><label>Delivery Method</label><span>${o.deliveryMethod}</span></div>
     <div class="info-cell"><label>Delivery Address</label><span>${o.deliveryAddress || 'Farm Pickup'}</span></div>
     ${o.deliveredDate ? `<div class="info-cell"><label>Delivered On</label><span>${new Date(o.deliveredDate).toLocaleDateString('en-IN')}</span></div>` : ''}
-    ${o.deliveryPartnerName ? `<div class="info-cell"><label>Delivery Partner</label><span>${o.deliveryPartnerName}</span></div>` : ''}`;
+    ${o.deliveryPartnerName ? `<div class="info-cell"><label>Delivery Partner</label><span>${o.deliveryPartnerName} <strong style="color:var(--primary);">(CropRider)</strong></span></div>` : ''}`;
 }
 
 loadOrder();

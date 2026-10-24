@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delivery Dashboard — CropLink</title>
+<title>CropRider Dashboard (Delivery Partner) — CropLink</title>
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -55,7 +55,7 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif}
 <body>
 <div class="dash-layout">
   <aside class="sidebar">
-    <div class="logo"><i class="fas fa-truck"></i><span>CropLink</span></div>
+    <div class="logo"><i class="fas fa-motorcycle"></i><span>CropRider</span></div>
     <nav>
       <a href="#" class="active" onclick="switchTab('my-deliveries',this)"><i class="fas fa-route"></i><span>My Deliveries</span></a>
       <a href="#" onclick="switchTab('available',this)"><i class="fas fa-box-open"></i><span>Available</span></a>
@@ -66,7 +66,7 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif}
 
   <main class="main-content">
     <div class="page-header">
-      <h1 id="page-title"><i class="fas fa-route"></i> My Deliveries</h1>
+      <h1 id="page-heading"><i class="fas fa-route"></i> CropRider Deliveries</h1>
       <p id="dp-name">Welcome back!</p>
     </div>
 
@@ -79,7 +79,7 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif}
     <!-- My Deliveries -->
     <div id="tab-my-deliveries" class="tab-content-panel active">
       <div class="card">
-        <div class="card-title"><i class="fas fa-route"></i> My Active Deliveries</div>
+        <div class="card-title"><i class="fas fa-route"></i> CropRider Assigned Deliveries</div>
         <div id="my-deliveries-list"><div class="empty-state"><i class="fas fa-truck"></i>No deliveries yet</div></div>
       </div>
     </div>
@@ -87,7 +87,7 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif}
     <!-- Available Pickups -->
     <div id="tab-available" class="tab-content-panel" style="display:none">
       <div class="card">
-        <div class="card-title"><i class="fas fa-box-open"></i> Available for Pickup (Packed Orders)</div>
+        <div class="card-title"><i class="fas fa-box-open"></i> Available for CropRider Pickup (Packed Deliveries)</div>
         <div id="available-list"><div class="empty-state"><i class="fas fa-box"></i>No available pickups</div></div>
       </div>
     </div>
@@ -119,7 +119,7 @@ if (!Api.isLoggedIn() || (Api.getUserRole() !== 'DELIVERY_PARTNER' && Api.getUse
   window.location.href = '/pages/login.html';
 }
 const user = Api.getUser();
-document.getElementById('dp-name').textContent = '👋 Welcome, ' + (user?.fullName || '');
+document.getElementById('dp-name').textContent = '👋 Welcome back, CropRider ' + (user?.fullName || 'Partner') + '!';
 
 function switchTab(tab, el) {
   document.querySelectorAll('.tab-content-panel').forEach(t => t.style.display = 'none');
@@ -167,7 +167,7 @@ async function loadAvailable() {
           <span><i class="fas fa-calendar"></i>${new Date(o.orderDate).toLocaleDateString('en-IN')}</span>
         </div>
         <div class="order-actions">
-          <button class="btn btn-primary" onclick="acceptDelivery(${o.id})"><i class="fas fa-hand-point-right"></i> Accept Delivery</button>
+          <button class="btn btn-primary" onclick="acceptDelivery(${o.id})"><i class="fas fa-motorcycle"></i> Accept as CropRider</button>
         </div>
       </div>`).join('');
   } catch(e) { showToast('Failed to load available orders', 'error'); }

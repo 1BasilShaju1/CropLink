@@ -17,7 +17,7 @@ import java.util.Map;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @GetMapping("/categories/public")
+    @GetMapping({"/categories/public", "/categories"})
     public ResponseEntity<ApiResponse<List<Category>>> getActiveCategories() {
         return ResponseEntity.ok(ApiResponse.success("Categories fetched", categoryService.getAllActive()));
     }

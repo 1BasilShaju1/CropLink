@@ -80,7 +80,7 @@
                 <div class="flex gap-1" style="flex-wrap: wrap;">
                     <button type="button" class="demo-pill-btn" onclick="fillDemo('customer@croplink.com', 'Customer@123')">Customer</button>
                     <button type="button" class="demo-pill-btn" onclick="fillDemo('farmer@croplink.com', 'Farmer@123')">Farmer</button>
-                    <button type="button" class="demo-pill-btn" onclick="fillDemo('delivery@croplink.com', 'Delivery@123')">Delivery Partner</button>
+                    <button type="button" class="demo-pill-btn" onclick="fillDemo('delivery@croplink.com', 'Delivery@123')">Delivery Partner (CropRider)</button>
                     <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@croplink.com', 'Admin@123')">Admin</button>
                 </div>
             </div>
@@ -145,6 +145,12 @@
                 pwdInput.type = isPassword ? 'text' : 'password';
                 toggleBtn.innerHTML = isPassword ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
             });
+
+            // Check session expiration message
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('expired') === 'true') {
+                if (window.Toast) Toast.warning('Your session has expired. Please sign in again.');
+            }
 
             // Redirect if already logged in
             if (Api.isLoggedIn()) {

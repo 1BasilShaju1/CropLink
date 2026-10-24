@@ -108,8 +108,13 @@ public class ProductService {
 
     @Transactional
     public ProductResponse updateProduct(Long productId, ProductRequest request, List<MultipartFile> images, Long farmerId) {
+        return updateProduct(productId, request, images, farmerId, false);
+    }
+
+    @Transactional
+    public ProductResponse updateProduct(Long productId, ProductRequest request, List<MultipartFile> images, Long farmerId, boolean isAdmin) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException("Product not found", 404));
-        if (!product.getFarmer().getId().equals(farmerId)) throw new AppException("Not authorized", 403);
+        if (!isAdmin && !product.getFarmer().getId().equals(farmerId)) throw new AppException("Not authorized", 403);
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException("Category not found", 404));
         product.setName(toTitleCase(request.getName()));
@@ -175,6 +180,41 @@ public class ProductService {
             product.setQuantityAvailable(0);
             productRepository.save(product);
         }
+    }
+
+    
+    @Transactional
+    public ProductResponse addHarvest(Long productId, java.time.LocalDate harvestDate, Integer quantity, java.math.BigDecimal price,
+                                     String ripenessLevel, String freshnessStatus, String qualityGrade,
+                                     List<MultipartFile> images, Long farmerId, boolean isAdmin) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException("Product not found", 404));
+        if (!isAdmin && !product.getFarmer().getId().equals(farmerId)) {
+            throw new AppException("Not authorized", 403);
+        }
+        if (harvestDate != null) product.setHarvestDate(harvestDate);
+        if (quantity != null && quantity > 0) {
+            int current = product.getQuantityAvailable() != null ? product.getQuantityAvailable() : 0;
+            product.setQuantityAvailable(current + quantity);
+            product.setAvailability("Available");
+            product.setProductStatus("ACTIVE");
+        }
+        if (price != null && price.compareTo(java.math.BigDecimal.ZERO) > 0) product.setPrice(price);
+        if (ripenessLevel != null && !ripenessLevel.isBlank()) product.setRipenessLevel(ripenessLevel);
+        if (freshnessStatus != null && !freshnessStatus.isBlank()) product.setFreshnessStatus(freshnessStatus);
+        if (qualityGrade != null && !qualityGrade.isBlank()) product.setQualityGrade(qualityGrade);
+
+        product = productRepository.save(product);
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile img : images) {
+                if (!img.isEmpty()) {
+                    String url = fileStorageService.storeFile(img);
+                    ProductImage pi = ProductImage.builder().product(product).imageUrl(url).isPrimary(false).build();
+                    productImageRepository.save(pi);
+                }
+            }
+        }
+        return toResponse(product);
     }
 
     public Page<ProductResponse> getAllProductsAdmin(int page, int size) {

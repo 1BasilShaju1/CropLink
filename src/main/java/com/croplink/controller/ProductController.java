@@ -138,8 +138,34 @@ public class ProductController {
         req.setPaymentOptions(paymentOptions);
         req.setMinimumOrderQuantity(minimumOrderQuantity != null ? minimumOrderQuantity : 1);
         req.setAvailability(availability != null && !availability.isBlank() ? availability : "Available");
+        boolean isAdmin = userDetails.getUser().getRole() == com.croplink.entity.User.Role.ADMIN;
         return ResponseEntity.ok(ApiResponse.success("Product updated",
-                productService.updateProduct(id, req, images, userDetails.getId())));
+                productService.updateProduct(id, req, images, userDetails.getId(), isAdmin)));
+    }
+
+
+    @PostMapping(value = "/farmer/products/{id}/harvest")
+    @PreAuthorize("hasRole('FARMER') or hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductResponse>> addHarvest(
+            @PathVariable Long id,
+            @RequestParam(required = false) String harvestDate,
+            @RequestParam(required = false) Integer quantityAvailable,
+            @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) String ripenessLevel,
+            @RequestParam(required = false) String freshnessStatus,
+            @RequestParam(required = false) String qualityGrade,
+            @RequestParam(required = false) List<MultipartFile> images,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("User not authenticated"));
+        }
+        LocalDate date = LocalDate.now();
+        if (harvestDate != null && !harvestDate.isBlank()) {
+            try { date = LocalDate.parse(harvestDate); } catch(Exception ignored) {}
+        }
+        boolean isAdmin = userDetails.getUser().getRole() == com.croplink.entity.User.Role.ADMIN;
+        return ResponseEntity.ok(ApiResponse.success("Harvest added successfully",
+                productService.addHarvest(id, date, quantityAvailable, price, ripenessLevel, freshnessStatus, qualityGrade, images, userDetails.getId(), isAdmin)));
     }
 
     @DeleteMapping("/farmer/products/{id}")

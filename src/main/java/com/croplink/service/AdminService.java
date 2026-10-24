@@ -31,6 +31,9 @@ public class AdminService {
         long totalUsers = userRepository.count();
         long farmers = userRepository.countByRole(User.Role.FARMER);
         long customers = userRepository.countByRole(User.Role.CUSTOMER);
+        long pendingFarmers = userRepository.countByRoleAndStatus(User.Role.FARMER, User.UserStatus.PENDING_APPROVAL)
+                + userRepository.countByRoleAndStatus(User.Role.FARMER, User.UserStatus.INACTIVE);
+
         return DashboardStats.builder()
                 .totalProducts(totalProducts)
                 .activeProducts(activeProducts)
@@ -41,6 +44,7 @@ public class AdminService {
                 .totalUsers(totalUsers)
                 .totalFarmers(farmers)
                 .totalCustomers(customers)
+                .pendingFarmers(pendingFarmers)
                 .build();
     }
 

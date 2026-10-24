@@ -17,6 +17,18 @@ const Api = {
             return null;
         }
     },
+    isTokenExpired: (token) => {
+        if (!token) return true;
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) return true;
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            if (!payload || !payload.exp) return false;
+            return (payload.exp * 1000) < Date.now();
+        } catch (e) {
+            return true;
+        }
+    },
     setAuth: (token, user) => {
         localStorage.setItem(TOKEN_KEY, token);
         localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -27,7 +39,15 @@ const Api = {
         localStorage.removeItem(USER_KEY);
         window.dispatchEvent(new CustomEvent('auth-changed', { detail: null }));
     },
-    isLoggedIn: () => !!localStorage.getItem(TOKEN_KEY),
+    isLoggedIn: () => {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return false;
+        if (Api.isTokenExpired(token)) {
+            Api.clearAuth();
+            return false;
+        }
+        return true;
+    },
     getUserRole: () => {
         const user = Api.getUser();
         return user ? user.role : null;
@@ -60,6 +80,8 @@ const Api = {
                 // Redirect to respective dashboard
                 if (role === 'FARMER') window.location.href = '/pages/farmer-dashboard.html';
                 else if (role === 'ADMIN') window.location.href = '/pages/admin-dashboard.html';
+                else if (role === 'DELIVERY_PARTNER') window.location.href = '/pages/delivery-dashboard.html';
+                else if (role === 'CUSTOMER') window.location.href = '/pages/customer-dashboard.html';
                 else window.location.href = '/pages/products.html';
                 return false;
             }
@@ -81,6 +103,15 @@ const Api = {
 
         try {
             const res = await fetch(API_BASE + path, options);
+            if (res.status === 401) {
+                Api.clearAuth();
+                const isLoginPage = window.location.pathname.includes('login.html');
+                if (!isLoginPage) {
+                    window.location.href = '/pages/login.html?expired=true';
+                }
+                throw new Error('Session expired. Please log in again.');
+            }
+
             let data;
             const contentType = res.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
