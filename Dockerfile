@@ -4,7 +4,7 @@
 # ===================================================
 
 # Stage 1: Build the Application with Maven
-FROM maven:3.9.16-eclipse-temurin-25 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Cache dependencies
@@ -16,7 +16,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Minimal Production JRE Runtime
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Create persistent/local storage directory

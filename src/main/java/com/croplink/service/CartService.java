@@ -48,14 +48,7 @@ public class CartService {
         Cart cart = getOrCreateCart(customerId);
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException("Product not found", 404));
-        if (!"ACTIVE".equals(product.getProductStatus())) throw new AppException("Product not available", 400);
-        User productFarmer = product.getFarmer();
-        if (cart.getItems().stream().anyMatch(item ->
-                item.getProduct() != null
-                        && item.getProduct().getFarmer() != null
-                        && !item.getProduct().getFarmer().getId().equals(productFarmer.getId()))) {
-            throw new AppException("A cart can only contain products from one farmer", 400);
-        }
+        if (!product.getProductStatus().equals("ACTIVE")) throw new AppException("Product not available", 400);
         cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId()).ifPresentOrElse(
             item -> {
                 item.setQuantity(item.getQuantity() + request.getQuantity());

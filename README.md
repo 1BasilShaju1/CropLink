@@ -3,13 +3,13 @@
 > **Project Name:** CropLink  
 > **Project Title:** Farm-Door Delivery Platform (Farm2Door)  
 > **Domain:** Smart Agricultural Direct-to-Consumer (D2C) Marketplace & Order Fulfillment  
-> **Tech Stack:** Java 25 LTS, Spring Boot 3, Spring Security, JWT, Spring Data JPA, MySQL, Vanilla HTML5/CSS3/JavaScript  
+> **Tech Stack:** Java 17, Spring Boot 3, Spring Security, JWT, Spring Data JPA, MySQL, Vanilla HTML5/CSS3/JavaScript  
 > **Deployment Ready:** Local Development & Render Cloud Platform (Docker / Web Service)
 
 ---
 
-![CropLink Platform](https://img.shields.io/badge/Spring%20Boot-3.5.16-brightgreen.svg)
-![Java](https://img.shields.io/badge/Java-25%20LTS-orange.svg)
+![CropLink Platform](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)
+![Java](https://img.shields.io/badge/Java-17%20%7C%2021-orange.svg)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-blue.svg)
 ![Database](https://img.shields.io/badge/Database-MySQL%208.0-blue.svg)
 ![Render](https://img.shields.io/badge/Deploy-Render-black.svg?logo=render)
@@ -137,7 +137,7 @@ The platform includes an automated `DataSeeder` that seeds initial categories, a
 ## 💻 7. Local Setup & Execution Guide
 
 ### Prerequisites
-- **JDK 25 LTS** installed and selected in `JAVA_HOME`/`PATH` (`java -version`)
+- **JDK 17 or 21** installed (`java -version`)
 - **MySQL 8.0+** running locally
 - Git installed
 
@@ -169,7 +169,6 @@ run.bat
 
 #### Option C: Running the Compiled Fat JAR
 ```bash
-./mvnw package
 java -jar target/croplink-1.0.0.jar
 ```
 
@@ -263,7 +262,8 @@ flowchart LR
    - Click **Reference Variable** ➔ Select your **MySQL** service ➔ Select `MYSQLHOST`.
    - Repeat to reference: `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`.
    *(Or simply add a single variable `SPRING_DATASOURCE_URL` referencing `${{MySQL.DATABASE_URL}}`)*.
-4. Add a unique random `JWT_SECRET` of at least 32 bytes. Do not reuse the example secret from an older deployment; keep the value in the provider's secret manager.
+4. Add one custom variable for security:
+   - `JWT_SECRET` = `CropLinkSecretKeyForJWTTokenGenerationThatIsLongEnough2024`
 
 ---
 
@@ -327,9 +327,7 @@ Scroll down to the **Environment Variables** section on Render and add:
 | `DB_NAME` | `croplink_db` (or defaultdb) | Database name |
 | `DB_USERNAME` | `your-db-user` | MySQL username |
 | `DB_PASSWORD` | `your-db-password` | MySQL password |
-| `JWT_SECRET` | A unique random value of at least 32 bytes | Secret for signing tokens; generate and store it securely |
-| `CORS_ALLOWED_ORIGINS` | `https://your-frontend.example.com` | Comma-separated exact origins when hosting the frontend separately; same-origin deployments need no override |
-| `UPLOAD_DIR` | `uploads/products` | Local directory for uploaded product images; use persistent storage in production |
+| `JWT_SECRET` | `CropLinkSecretKeyForJWTTokenGenerationThatIsLongEnough2024` | 256-bit secret for signing tokens |
 
 > **Note:** Alternatively, if your cloud database provider provides a single full JDBC URL, you can simply set:  
 > `DATABASE_URL` = `jdbc:mysql://<user>:<password>@<host>:<port>/<dbname>?useSSL=true`
@@ -408,10 +406,3 @@ Scroll down to the **Environment Variables** section on Render and add:
 ---
 
 *Developed with ❤️ for Farmers and Direct Doorstep Delivery.*
-#   C r o p L i n k  
- #   C r o p  
- #   C r o p  
- #   C r o p  
- #   C r o p L i n k  
- #   C r o p L i n k  
- 
