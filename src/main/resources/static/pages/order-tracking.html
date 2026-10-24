@@ -53,7 +53,23 @@ body{background:#f0f4f0;font-family:'Poppins',sans-serif;min-height:100vh}
 .badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:600}
 @media(max-width:600px){.order-header-card .order-meta,.info-grid{grid-template-columns:1fr}}
 </style>
-</head>
+<style>
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media(max-width:768px){
+  table { min-width: 500px; }
+  .table-wrap, .data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .grid-cols-4, .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+  .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .dashboard-wrapper { flex-direction: column !important; }
+  .dashboard-sidebar { width: 100% !important; flex-direction: row !important; overflow-x: auto; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .quick-actions { grid-template-columns: 1fr !important; }
+}
+@media(max-width:480px){
+  .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr !important; }
+}
+</style></head>
 <body>
 <nav class="top-nav">
   <a href="/" class="logo"><i class="fas fa-leaf"></i> CropLink</a>

@@ -86,7 +86,23 @@
             margin-bottom: 2rem;
         }
     </style>
-</head>
+<style>
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media(max-width:768px){
+  table { min-width: 500px; }
+  .table-wrap, .data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .grid-cols-4, .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+  .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .dashboard-wrapper { flex-direction: column !important; }
+  .dashboard-sidebar { width: 100% !important; flex-direction: row !important; overflow-x: auto; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .quick-actions { grid-template-columns: 1fr !important; }
+}
+@media(max-width:480px){
+  .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr !important; }
+}
+</style></head>
 <body>
     <!-- Navbar -->
     <header class="navbar">

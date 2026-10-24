@@ -7,29 +7,48 @@
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
+/* ===== ADMIN LAYOUT ===== */
 .admin-layout{display:flex;min-height:100vh;background:#f0f4f0}
-.admin-sidebar{width:240px;background:linear-gradient(180deg,#1b5e20,#2e7d32);color:#fff;padding:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+
+/* Sidebar */
+.admin-sidebar{width:240px;background:linear-gradient(180deg,#1b5e20,#2e7d32);color:#fff;padding:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:.3s}
 .admin-sidebar .logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
-.admin-sidebar nav a{display:flex;align-items:center;gap:12px;padding:14px 20px;color:rgba(255,255,255,0.85);text-decoration:none;transition:.2s;font-size:.95rem}
+.admin-sidebar nav a{display:flex;align-items:center;gap:12px;padding:14px 20px;color:rgba(255,255,255,0.85);text-decoration:none;transition:.2s;font-size:.95rem;cursor:pointer}
 .admin-sidebar nav a:hover,.admin-sidebar nav a.active{background:rgba(255,255,255,0.15);color:#fff;border-left:3px solid #a5d6a7}
-.admin-sidebar nav a i{width:20px;text-align:center}
-.admin-main{margin-left:240px;flex:1;padding:30px}
-.admin-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.admin-sidebar nav a i{width:20px;text-align:center;flex-shrink:0}
+
+/* Mobile sidebar toggle */
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:10px 13px;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90}
+.sidebar-overlay.show{display:block}
+
+/* Main content */
+.admin-main{margin-left:240px;flex:1;padding:30px;transition:.3s}
+.admin-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
 .admin-topbar h1{font-size:1.6rem;font-weight:700;color:#1b5e20}
+
+/* Stats */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:32px}
 .stat-card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07);border-left:4px solid #4caf50;display:flex;align-items:center;gap:16px}
-.stat-card .stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#e8f5e9;color:#2e7d32}
+.stat-card .stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#e8f5e9;color:#2e7d32;flex-shrink:0}
 .stat-card .stat-info h3{font-size:1.6rem;font-weight:700;color:#1b5e20;line-height:1}
 .stat-card .stat-info p{font-size:.82rem;color:#777;margin-top:4px}
-.tab-bar{display:flex;gap:8px;margin-bottom:22px;border-bottom:2px solid #e0e0e0;padding-bottom:0}
-.tab-btn{padding:10px 22px;border:none;background:none;cursor:pointer;font-size:.95rem;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;font-family:inherit}
+
+/* Tabs */
+.tab-bar{display:flex;gap:8px;margin-bottom:22px;border-bottom:2px solid #e0e0e0;padding-bottom:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{padding:10px 22px;border:none;background:none;cursor:pointer;font-size:.95rem;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;font-family:inherit;white-space:nowrap}
 .tab-btn.active{color:#2e7d32;border-bottom-color:#2e7d32;font-weight:600}
 .tab-content{display:none}.tab-content.active{display:block}
-.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
-.data-table th{background:#f5f5f5;padding:12px 16px;text-align:left;font-size:.85rem;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* Table */
+.data-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);min-width:500px}
+.data-table th{background:#f5f5f5;padding:12px 16px;text-align:left;font-size:.85rem;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .data-table td{padding:12px 16px;border-bottom:1px solid #f0f0f0;font-size:.9rem;color:#333;vertical-align:middle}
 .data-table tr:last-child td{border-bottom:none}
 .data-table tr:hover td{background:#fafafa}
+
+/* Badges */
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600}
 .badge-active,.badge-ACTIVE{background:#e8f5e9;color:#2e7d32}
 .badge-blocked,.badge-BLOCKED{background:#ffebee;color:#c62828}
@@ -40,39 +59,77 @@
 .badge-FARMER{background:#e3f2fd;color:#1565c0}
 .badge-CUSTOMER{background:#f3e5f5;color:#6a1b9a}
 .badge-ADMIN{background:#fce4ec;color:#880e4f}
+
+/* Buttons */
 .btn-sm{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.82rem;font-weight:600;transition:.2s}
 .btn-green{background:#4caf50;color:#fff}.btn-green:hover{background:#388e3c}
 .btn-red{background:#f44336;color:#fff}.btn-red:hover{background:#c62828}
 .btn-orange{background:#ff9800;color:#fff}.btn-orange:hover{background:#e65100}
 .btn-blue{background:#2196f3;color:#fff}.btn-blue:hover{background:#1565c0}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.search-input{padding:9px 16px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;width:260px}
+
+/* Section header */
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.search-input{padding:9px 16px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;width:100%;max-width:260px}
 .search-input:focus{border-color:#4caf50}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:16px;padding:32px;width:460px;max-width:95vw}
+.modal-box{background:#fff;border-radius:16px;padding:32px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto}
 .modal-box h3{margin-bottom:20px;color:#1b5e20}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;margin-bottom:6px;font-size:.88rem;font-weight:600;color:#444}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;font-family:inherit;box-sizing:border-box}
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#4caf50}
-.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px}
-@media(max-width:768px){.admin-sidebar{width:60px}.admin-sidebar .logo span,.admin-sidebar nav a span{display:none}.admin-main{margin-left:60px;padding:16px}.stats-grid{grid-template-columns:1fr 1fr}}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:9999;opacity:0;transition:.3s;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1}
+.toast.success{background:#2e7d32;color:#fff}
+.toast.error{background:#c62828;color:#fff}
+.toast.info{background:#1565c0;color:#fff}
+.toast.warning{background:#e65100;color:#fff}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar-toggle{display:block}
+  .admin-sidebar{transform:translateX(-100%);width:240px}
+  .admin-sidebar.open{transform:translateX(0)}
+  .admin-main{margin-left:0;padding:16px;padding-top:60px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .stat-card{padding:16px}
+  .admin-topbar h1{font-size:1.2rem}
+  .section-header{flex-direction:column;align-items:flex-start}
+  .search-input{max-width:100%;width:100%}
+  .modal-box{padding:20px}
+}
+@media(max-width:400px){
+  .stats-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+
+<!-- Mobile sidebar toggle button -->
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu">
+  <i class="fas fa-bars"></i>
+</button>
+<!-- Overlay for mobile sidebar -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
 <div class="admin-layout">
   <!-- Sidebar -->
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="admin-sidebar">
     <div class="logo"><i class="fas fa-leaf"></i><span>CropLink Admin</span></div>
     <nav>
-      <a href="#" class="active" onclick="showTab('dashboard',this)"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-      <a href="#" onclick="showTab('users',this)"><i class="fas fa-users"></i><span>Users</span></a>
-      <a href="#" onclick="showTab('products',this)"><i class="fas fa-seedling"></i><span>Products</span></a>
-      <a href="#" onclick="showTab('orders',this)"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
-      <a href="#" onclick="showTab('categories',this)"><i class="fas fa-tags"></i><span>Categories</span></a>
-      <a href="/pages/profile.html" style="margin-top:auto"><i class="fas fa-user"></i><span>Profile</span></a>
-      <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+      <a href="#" class="active" onclick="showTab('dashboard',this);closeSidebar();return false;"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+      <a href="#" onclick="showTab('users',this);closeSidebar();return false;"><i class="fas fa-users"></i><span>Users</span></a>
+      <a href="#" onclick="showTab('products',this);closeSidebar();return false;"><i class="fas fa-seedling"></i><span>Products</span></a>
+      <a href="#" onclick="showTab('orders',this);closeSidebar();return false;"><i class="fas fa-shopping-bag"></i><span>Orders</span></a>
+      <a href="#" onclick="showTab('categories',this);closeSidebar();return false;"><i class="fas fa-tags"></i><span>Categories</span></a>
+      <a href="/pages/profile.html"><i class="fas fa-user"></i><span>Profile</span></a>
+      <a href="#" onclick="logout();return false;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
     </nav>
   </aside>
 
@@ -97,8 +154,8 @@
       </div>
       <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
         <h3 style="color:#1b5e20;margin-bottom:16px"><i class="fas fa-info-circle"></i> Platform Overview</h3>
-        <p style="color:#666;line-height:1.7">Welcome to the CropLink admin panel. Use the sidebar to manage users, products, orders, and categories. All platform activity is monitored here.</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-top:20px">
+        <p style="color:#666;line-height:1.7">Welcome to the CropLink admin panel. Use the sidebar to manage users, products, orders, and categories.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:20px">
           <div style="background:#e8f5e9;border-radius:10px;padding:16px">
             <h4 style="color:#2e7d32"><i class="fas fa-check-circle"></i> Active Crops</h4>
             <p id="s-active-products" style="font-size:1.8rem;font-weight:700;color:#1b5e20">—</p>
@@ -114,32 +171,31 @@
         </div>
       </div>
 
-      <!-- Quick Crops & Categories Live Backend Overview -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px">
+      <!-- Quick overview tables -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:28px">
         <div style="background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
             <h3 style="color:#1b5e20;font-size:1.1rem"><i class="fas fa-seedling"></i> Live Crop Records</h3>
             <button class="btn-sm btn-green" onclick="showTab('products')">View All</button>
           </div>
-          <table class="data-table" style="font-size:0.85rem">
-            <thead><tr><th>ID</th><th>Crop</th><th>Farmer</th><th>Price</th><th>Status</th></tr></thead>
-            <tbody id="dash-crops-tbody">
-              <tr><td colspan="5" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading crops...</td></tr>
-            </tbody>
-          </table>
+          <div class="data-table-wrap">
+            <table class="data-table" style="font-size:0.85rem">
+              <thead><tr><th>ID</th><th>Crop</th><th>Farmer</th><th>Price</th><th>Status</th></tr></thead>
+              <tbody id="dash-crops-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+            </table>
+          </div>
         </div>
-
         <div style="background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
             <h3 style="color:#1b5e20;font-size:1.1rem"><i class="fas fa-tags"></i> Active Categories</h3>
             <button class="btn-sm btn-green" onclick="showTab('categories')">Manage</button>
           </div>
-          <table class="data-table" style="font-size:0.85rem">
-            <thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Status</th></tr></thead>
-            <tbody id="dash-cats-tbody">
-              <tr><td colspan="4" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>
-            </tbody>
-          </table>
+          <div class="data-table-wrap">
+            <table class="data-table" style="font-size:0.85rem">
+              <thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Status</th></tr></thead>
+              <tbody id="dash-cats-tbody"><tr><td colspan="4" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -150,10 +206,12 @@
         <h2 style="color:#1b5e20">Manage Users</h2>
         <input class="search-input" id="user-search" placeholder="🔍 Search users..." oninput="filterUsers()">
       </div>
-      <table class="data-table" id="users-table">
-        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="users-tbody"><tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
-      </table>
+      <div class="data-table-wrap">
+        <table class="data-table" id="users-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Products Tab -->
@@ -168,10 +226,12 @@
           <option value="INACTIVE">Inactive</option>
         </select>
       </div>
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>Name</th><th>Farmer</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="products-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
-      </table>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Farmer</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="products-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Orders Tab -->
@@ -179,10 +239,12 @@
       <div class="section-header">
         <h2 style="color:#1b5e20">All Orders</h2>
       </div>
-      <table class="data-table">
-        <thead><tr><th>Order ID</th><th>Customer</th><th>Farmer</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
-        <tbody id="orders-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
-      </table>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Farmer</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="orders-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Categories Tab -->
@@ -191,10 +253,12 @@
         <h2 style="color:#1b5e20">Manage Categories</h2>
         <button class="btn-sm btn-green" onclick="openCatModal()"><i class="fas fa-plus"></i> Add Category</button>
       </div>
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="categories-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
-      </table>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="categories-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </main>
 </div>
@@ -213,16 +277,16 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="/js/api.js">
 
-<script src="/js/effects.js"></script
-
+<script src="/js/api.js"></script>
+<script src="/js/effects.js"></script>
 <script>
-function showToast(msg, type = 'info') {
+// ===== TOAST =====
+function showToast(msg, type='info') {
   if (window.Toast) {
-    if (type === 'success' && Toast.success) return Toast.success(msg);
-    if (type === 'error' && Toast.error) return Toast.error(msg);
-    if (type === 'warning' && Toast.warning) return Toast.warning(msg);
+    if (type==='success' && Toast.success) return Toast.success(msg);
+    if (type==='error' && Toast.error) return Toast.error(msg);
+    if (type==='warning' && Toast.warning) return Toast.warning(msg);
     if (Toast.info) return Toast.info(msg);
     if (Toast.show) return Toast.show(msg, type);
   }
@@ -231,12 +295,10 @@ function showToast(msg, type = 'info') {
     t.textContent = msg;
     t.className = 'toast show ' + type;
     setTimeout(() => { t.className = 'toast'; }, 3000);
-  } else {
-    console.log(`[${type}] ${msg}`);
   }
 }
 
-// Auth guard
+// ===== AUTH GUARD =====
 if (!Api.isLoggedIn() || Api.getUserRole() !== 'ADMIN') {
   window.location.href = '/pages/login.html';
 }
@@ -245,50 +307,72 @@ document.getElementById('admin-name').textContent = '👤 ' + (user?.fullName ||
 
 let allUsers = [], currentCatId = null;
 
+// ===== MOBILE SIDEBAR =====
+const sidebarEl   = document.getElementById('admin-sidebar');
+const overlayEl   = document.getElementById('sidebar-overlay');
+const toggleBtn   = document.getElementById('sidebar-toggle');
+
+toggleBtn.addEventListener('click', () => {
+  sidebarEl.classList.toggle('open');
+  overlayEl.classList.toggle('show');
+});
+overlayEl.addEventListener('click', closeSidebar);
+
+function closeSidebar() {
+  sidebarEl.classList.remove('open');
+  overlayEl.classList.remove('show');
+}
+
+// ===== NAVIGATION =====
 function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-sidebar nav a').forEach(a => a.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
   if (el) {
     el.classList.add('active');
   } else {
-    const navItem = document.querySelector(`.admin-sidebar nav a[onclick*="${tab}"]`);
+    const navItem = document.querySelector(`.admin-sidebar nav a[onclick*="'${tab}'"]`);
     if (navItem) navItem.classList.add('active');
   }
-  const titles = {dashboard:'Dashboard',users:'Manage Users',products:'Manage Products',orders:'All Orders',categories:'Categories'};
-  document.getElementById('page-title').innerHTML = '<i class="fas fa-tachometer-alt"></i> ' + (titles[tab] || tab);
-  if (tab === 'users') loadUsers();
-  else if (tab === 'products') loadProducts();
-  else if (tab === 'orders') loadOrders();
+  const titles = {
+    dashboard: '<i class="fas fa-tachometer-alt"></i> Dashboard',
+    users:     '<i class="fas fa-users"></i> Manage Users',
+    products:  '<i class="fas fa-seedling"></i> Manage Products',
+    orders:    '<i class="fas fa-shopping-bag"></i> All Orders',
+    categories:'<i class="fas fa-tags"></i> Categories'
+  };
+  document.getElementById('page-title').innerHTML = titles[tab] || tab;
+  if (tab === 'users')      loadUsers();
+  else if (tab === 'products')   loadProducts();
+  else if (tab === 'orders')     loadOrders();
   else if (tab === 'categories') loadCategories();
-  else if (tab === 'dashboard') loadDashboardAll();
+  else if (tab === 'dashboard')  loadDashboardAll();
 }
 
+// ===== STATS =====
 async function loadStats() {
   try {
     const res = await Api.get('/api/admin/dashboard');
     const s = res.data || {};
-    document.getElementById('s-users').textContent = s.totalUsers ?? 0;
-    document.getElementById('s-farmers').textContent = s.totalFarmers ?? 0;
-    document.getElementById('s-pending-farmers').textContent = s.pendingFarmers ?? 0;
-    if (document.getElementById('s-pending-farmers-box')) {
-      document.getElementById('s-pending-farmers-box').textContent = s.pendingFarmers ?? 0;
-    }
-    document.getElementById('s-customers').textContent = s.totalCustomers ?? 0;
-    document.getElementById('s-products').textContent = s.totalProducts ?? 0;
-    document.getElementById('s-orders').textContent = s.totalOrders ?? 0;
-    if (document.getElementById('s-pending-orders-card')) {
-      document.getElementById('s-pending-orders-card').textContent = s.pendingOrders ?? 0;
-    }
-    document.getElementById('s-revenue').textContent = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('s-active-products').textContent = s.activeProducts ?? 0;
-    document.getElementById('s-pending-orders').textContent = s.pendingOrders ?? 0;
+    document.getElementById('s-users').textContent              = s.totalUsers ?? 0;
+    document.getElementById('s-farmers').textContent            = s.totalFarmers ?? 0;
+    document.getElementById('s-pending-farmers').textContent    = s.pendingFarmers ?? 0;
+    document.getElementById('s-pending-farmers-box').textContent= s.pendingFarmers ?? 0;
+    document.getElementById('s-customers').textContent          = s.totalCustomers ?? 0;
+    document.getElementById('s-products').textContent           = s.totalProducts ?? 0;
+    document.getElementById('s-orders').textContent             = s.totalOrders ?? 0;
+    document.getElementById('s-pending-orders-card').textContent= s.pendingOrders ?? 0;
+    document.getElementById('s-revenue').textContent            = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('s-active-products').textContent    = s.activeProducts ?? 0;
+    document.getElementById('s-pending-orders').textContent     = s.pendingOrders ?? 0;
   } catch(e) {
     console.error('loadStats error:', e);
     showToast('Failed to load dashboard stats: ' + (e.message || ''), 'error');
   }
 }
 
+// ===== OVERVIEW CROPS =====
 async function loadOverviewCrops() {
   const tbody = document.getElementById('dash-crops-tbody');
   if (!tbody) return;
@@ -299,7 +383,7 @@ async function loadOverviewCrops() {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:#888">No crops listed yet</td></tr>';
       return;
     }
-    tbody.innerHTML = products.slice(0, 5).map(p => `
+    tbody.innerHTML = products.slice(0,5).map(p => `
       <tr>
         <td>#${p.id}</td>
         <td><strong>${p.name || ''}</strong></td>
@@ -313,6 +397,7 @@ async function loadOverviewCrops() {
   }
 }
 
+// ===== OVERVIEW CATEGORIES =====
 async function loadOverviewCategories() {
   const tbody = document.getElementById('dash-cats-tbody');
   if (!tbody) return;
@@ -323,7 +408,7 @@ async function loadOverviewCategories() {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:#888">No categories found</td></tr>';
       return;
     }
-    tbody.innerHTML = cats.slice(0, 5).map(c => `
+    tbody.innerHTML = cats.slice(0,5).map(c => `
       <tr>
         <td>#${c.id}</td>
         <td><strong>${c.name}</strong></td>
@@ -337,13 +422,10 @@ async function loadOverviewCategories() {
 }
 
 async function loadDashboardAll() {
-  await Promise.allSettled([
-    loadStats(),
-    loadOverviewCrops(),
-    loadOverviewCategories()
-  ]);
+  await Promise.allSettled([loadStats(), loadOverviewCrops(), loadOverviewCategories()]);
 }
 
+// ===== USERS =====
 async function loadUsers() {
   const tbody = document.getElementById('users-tbody');
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>';
@@ -353,14 +435,17 @@ async function loadUsers() {
     renderUsers(allUsers);
   } catch(e) {
     console.error('loadUsers error:', e);
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#d32f2f">Failed to load users: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadUsers()" style="margin-top:8px">Retry</button></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:#d32f2f">Failed to load users: ${e.message || ''}<br><button class="btn-sm btn-green" onclick="loadUsers()" style="margin-top:8px">Retry</button></td></tr>`;
     showToast('Failed to load users: ' + (e.message || ''), 'error');
   }
 }
 
 function renderUsers(users) {
   const tbody = document.getElementById('users-tbody');
-  if (!users || !users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
+  if (!users || !users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>';
+    return;
+  }
   tbody.innerHTML = users.map(u => `
     <tr>
       <td>#${u.id}</td>
@@ -369,14 +454,19 @@ function renderUsers(users) {
       <td><span class="badge badge-${u.role}">${u.role}</span></td>
       <td><span class="badge badge-${u.status}">${u.status}</span></td>
       <td>
-        ${u.status !== 'BLOCKED' ? `<button class="btn-sm btn-red" onclick="updateUserStatus(${u.id},'BLOCKED')">Block</button>` : `<button class="btn-sm btn-green" onclick="updateUserStatus(${u.id},'ACTIVE')">Activate</button>`}
+        ${u.status !== 'BLOCKED'
+          ? `<button class="btn-sm btn-red" onclick="updateUserStatus(${u.id},'BLOCKED')">Block</button>`
+          : `<button class="btn-sm btn-green" onclick="updateUserStatus(${u.id},'ACTIVE')">Activate</button>`}
       </td>
     </tr>`).join('');
 }
 
 function filterUsers() {
   const q = document.getElementById('user-search').value.toLowerCase();
-  renderUsers(allUsers.filter(u => (u.fullName && u.fullName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q))));
+  renderUsers(allUsers.filter(u =>
+    (u.fullName && u.fullName.toLowerCase().includes(q)) ||
+    (u.email && u.email.toLowerCase().includes(q))
+  ));
 }
 
 async function updateUserStatus(userId, status) {
@@ -388,6 +478,7 @@ async function updateUserStatus(userId, status) {
   } catch(e) { showToast(e.message, 'error'); }
 }
 
+// ===== PRODUCTS =====
 async function loadProducts() {
   const status = document.getElementById('product-status-filter')?.value || '';
   const tbody = document.getElementById('products-tbody');
@@ -396,7 +487,10 @@ async function loadProducts() {
     const res = await Api.get('/api/admin/products?page=0&size=100');
     let products = res.data?.content || (Array.isArray(res.data) ? res.data : []);
     if (status) products = products.filter(p => p.productStatus === status);
-    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products found</td></tr>'; return; }
+    if (!products.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products found</td></tr>';
+      return;
+    }
     tbody.innerHTML = products.map(p => `
       <tr>
         <td>#${p.id}</td>
@@ -406,24 +500,15 @@ async function loadProducts() {
         <td>₹${p.price} / ${p.unit || 'kg'}</td>
         <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
         <td style="display:flex;gap:6px;flex-wrap:wrap">
-          ${p.productStatus === 'PENDING_APPROVAL' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button>
-            <button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>
-          ` : ''}
-          ${p.productStatus === 'ACTIVE' ? `
-            <button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>
-          ` : ''}
-          ${p.productStatus === 'INACTIVE' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>
-          ` : ''}
-          ${p.productStatus === 'REJECTED' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Re-Approve</button>
-          ` : ''}
+          ${p.productStatus === 'PENDING_APPROVAL' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button><button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>` : ''}
+          ${p.productStatus === 'ACTIVE' ? `<button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>` : ''}
+          ${p.productStatus === 'INACTIVE' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>` : ''}
+          ${p.productStatus === 'REJECTED' ? `<button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Re-Approve</button>` : ''}
         </td>
       </tr>`).join('');
   } catch(e) {
     console.error('loadProducts error:', e);
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load products: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadProducts()" style="margin-top:8px">Retry</button></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load products: ${e.message || ''}<br><button class="btn-sm btn-green" onclick="loadProducts()" style="margin-top:8px">Retry</button></td></tr>`;
     showToast('Failed to load products: ' + (e.message || ''), 'error');
   }
 }
@@ -437,13 +522,17 @@ async function updateProductStatus(productId, status) {
   } catch(e) { showToast(e.message, 'error'); }
 }
 
+// ===== ORDERS =====
 async function loadOrders() {
   const tbody = document.getElementById('orders-tbody');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading orders...</td></tr>';
   try {
     const res = await Api.get('/api/admin/orders?page=0&size=100');
     const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
-    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders found</td></tr>'; return; }
+    if (!orders.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders found</td></tr>';
+      return;
+    }
     tbody.innerHTML = orders.map(o => `
       <tr>
         <td><strong>#${o.id}</strong></td>
@@ -456,18 +545,22 @@ async function loadOrders() {
       </tr>`).join('');
   } catch(e) {
     console.error('loadOrders error:', e);
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load orders: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadOrders()" style="margin-top:8px">Retry</button></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load orders: ${e.message || ''}<br><button class="btn-sm btn-green" onclick="loadOrders()" style="margin-top:8px">Retry</button></td></tr>`;
     showToast('Failed to load orders: ' + (e.message || ''), 'error');
   }
 }
 
+// ===== CATEGORIES =====
 async function loadCategories() {
   const tbody = document.getElementById('categories-tbody');
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>';
   try {
     const res = await Api.get('/api/admin/categories');
     const cats = Array.isArray(res.data) ? res.data : (res.data?.content || []);
-    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories found</td></tr>'; return; }
+    if (!cats.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories found</td></tr>';
+      return;
+    }
     tbody.innerHTML = cats.map(c => `
       <tr>
         <td>#${c.id}</td>
@@ -475,19 +568,31 @@ async function loadCategories() {
         <td>${c.description || '—'}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>
-          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name.replace(/'/g, "\\'")}', '${(c.description||'').replace(/'/g, "\\"')}')">Edit</button>
+          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name.replace(/'/g,"\\'")}',' ${(c.description||'').replace(/'/g,"\\'")}')">Edit</button>
           <button class="btn-sm btn-red" onclick="deleteCategory(${c.id})" style="margin-left:6px">Delete</button>
         </td>
       </tr>`).join('');
   } catch(e) {
     console.error('loadCategories error:', e);
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#d32f2f">Failed to load categories: ' + (e.message || '') + '<br><button class="btn-sm btn-green" onclick="loadCategories()" style="margin-top:8px">Retry</button></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:#d32f2f">Failed to load categories: ${e.message || ''}<br><button class="btn-sm btn-green" onclick="loadCategories()" style="margin-top:8px">Retry</button></td></tr>`;
     showToast('Failed to load categories: ' + (e.message || ''), 'error');
   }
 }
 
-function openCatModal() { currentCatId = null; document.getElementById('cat-modal-title').textContent='Add Category'; document.getElementById('cat-name').value=''; document.getElementById('cat-desc').value=''; document.getElementById('cat-modal').classList.add('show'); }
-function editCategory(id, name, desc) { currentCatId = id; document.getElementById('cat-modal-title').textContent='Edit Category'; document.getElementById('cat-name').value=name; document.getElementById('cat-desc').value=desc; document.getElementById('cat-modal').classList.add('show'); }
+function openCatModal() {
+  currentCatId = null;
+  document.getElementById('cat-modal-title').textContent = 'Add Category';
+  document.getElementById('cat-name').value = '';
+  document.getElementById('cat-desc').value = '';
+  document.getElementById('cat-modal').classList.add('show');
+}
+function editCategory(id, name, desc) {
+  currentCatId = id;
+  document.getElementById('cat-modal-title').textContent = 'Edit Category';
+  document.getElementById('cat-name').value = name;
+  document.getElementById('cat-desc').value = desc;
+  document.getElementById('cat-modal').classList.add('show');
+}
 function closeCatModal() { document.getElementById('cat-modal').classList.remove('show'); }
 
 async function saveCategory() {
@@ -516,185 +621,8 @@ async function deleteCategory(id) {
 
 function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
 
-loadStats();
-}
-
-async function loadStats() {
-  try {
-    const res = await Api.get('/api/admin/dashboard');
-    const s = res.data || {};
-    document.getElementById('s-users').textContent = s.totalUsers ?? 0;
-    document.getElementById('s-farmers').textContent = s.totalFarmers ?? 0;
-    document.getElementById('s-customers').textContent = s.totalCustomers ?? 0;
-    document.getElementById('s-products').textContent = s.totalProducts ?? 0;
-    document.getElementById('s-orders').textContent = s.totalOrders ?? 0;
-    document.getElementById('s-revenue').textContent = '₹' + Number(s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('s-active-products').textContent = s.activeProducts ?? 0;
-    document.getElementById('s-pending-orders').textContent = s.pendingOrders ?? 0;
-  } catch(e) { showToast('Failed to load stats: ' + (e.message || ''), 'error'); }
-}
-
-async function loadUsers() {
-  try {
-    const res = await Api.get('/api/admin/users?page=0&size=100');
-    allUsers = res.data?.content || (Array.isArray(res.data) ? res.data : []);
-    renderUsers(allUsers);
-  } catch(e) { showToast('Failed to load users: ' + (e.message || ''), 'error'); }
-}
-
-function renderUsers(users) {
-  const tbody = document.getElementById('users-tbody');
-  if (!users || !users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa">No users found</td></tr>'; return; }
-  tbody.innerHTML = users.map(u => `
-    <tr>
-      <td>#${u.id}</td>
-      <td><strong>${u.fullName || ''}</strong></td>
-      <td>${u.email}</td>
-      <td><span class="badge badge-${u.role}">${u.role}</span></td>
-      <td><span class="badge badge-${u.status}">${u.status}</span></td>
-      <td>
-        ${u.status !== 'BLOCKED' ? `<button class="btn-sm btn-red" onclick="updateUserStatus(${u.id},'BLOCKED')">Block</button>` : `<button class="btn-sm btn-green" onclick="updateUserStatus(${u.id},'ACTIVE')">Activate</button>`}
-      </td>
-    </tr>`).join('');
-}
-
-function filterUsers() {
-  const q = document.getElementById('user-search').value.toLowerCase();
-  renderUsers(allUsers.filter(u => (u.fullName && u.fullName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q))));
-}
-
-async function updateUserStatus(userId, status) {
-  try {
-    await Api.patch(`/api/admin/users/${userId}/status`, { status });
-    showToast('User status updated to ' + status, 'success');
-    loadUsers();
-    loadStats();
-  } catch(e) { showToast(e.message, 'error'); }
-}
-
-async function loadProducts() {
-  const status = document.getElementById('product-status-filter')?.value || '';
-  const tbody = document.getElementById('products-tbody');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading products...</td></tr>';
-  try {
-    const res = await Api.get(`/api/admin/products?page=0&size=100`);
-    let products = res.data?.content || (Array.isArray(res.data) ? res.data : []);
-    if (status) products = products.filter(p => p.productStatus === status);
-    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No products found</td></tr>'; return; }
-    tbody.innerHTML = products.map(p => `
-      <tr>
-        <td>#${p.id}</td>
-        <td><strong>${p.name || ''}</strong></td>
-        <td>${p.farmerName || 'Farmer #' + p.farmerId}</td>
-        <td>${p.categoryName || 'General'}</td>
-        <td>₹${p.price} / ${p.unit || 'kg'}</td>
-        <td><span class="badge badge-${p.productStatus}">${p.productStatus}</span></td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap">
-          ${p.productStatus === 'PENDING_APPROVAL' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Approve</button>
-            <button class="btn-sm btn-red" onclick="updateProductStatus(${p.id},'REJECTED')">Reject</button>
-          ` : ''}
-          ${p.productStatus === 'ACTIVE' ? `
-            <button class="btn-sm btn-orange" onclick="updateProductStatus(${p.id},'INACTIVE')">Deactivate</button>
-          ` : ''}
-          ${p.productStatus === 'INACTIVE' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Activate</button>
-          ` : ''}
-          ${p.productStatus === 'REJECTED' ? `
-            <button class="btn-sm btn-green" onclick="updateProductStatus(${p.id},'ACTIVE')">Re-Approve</button>
-          ` : ''}
-        </td>
-      </tr>`).join('');
-  } catch(e) {
-    console.error(e);
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load products: ' + (e.message || '') + '</td></tr>';
-    showToast('Failed to load products: ' + (e.message || ''), 'error');
-  }
-}
-
-async function updateProductStatus(productId, status) {
-  try {
-    await Api.patch(`/api/admin/products/${productId}/status`, { status });
-    showToast('Product status updated to ' + status, 'success');
-    loadProducts();
-    loadStats();
-  } catch(e) { showToast(e.message, 'error'); }
-}
-
-async function loadOrders() {
-  const tbody = document.getElementById('orders-tbody');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading orders...</td></tr>';
-  try {
-    const res = await Api.get('/api/admin/orders?page=0&size=100');
-    const orders = res.data?.content || (Array.isArray(res.data) ? res.data : []);
-    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa">No orders found</td></tr>'; return; }
-    tbody.innerHTML = orders.map(o => `
-      <tr>
-        <td><strong>#${o.id}</strong></td>
-        <td>${o.customerName || 'Customer #' + o.customerId}</td>
-        <td>${o.farmerName || 'Farmer #' + o.farmerId}</td>
-        <td><strong>₹${o.finalAmount}</strong></td>
-        <td>${o.deliveryMethod || 'Standard'}</td>
-        <td><span class="badge badge-${o.orderStatus}">${o.orderStatus}</span></td>
-        <td>${o.orderDate ? new Date(o.orderDate).toLocaleDateString('en-IN') : '—'}</td>
-      </tr>`).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#d32f2f">Failed to load orders: ' + (e.message || '') + '</td></tr>';
-    showToast('Failed to load orders: ' + (e.message || ''), 'error');
-  }
-}
-
-async function loadCategories() {
-  const tbody = document.getElementById('categories-tbody');
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa"><i class="fas fa-spinner fa-spin"></i> Loading categories...</td></tr>';
-  try {
-    const res = await Api.get('/api/admin/categories');
-    const cats = res.data || [];
-    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#aaa">No categories found</td></tr>'; return; }
-    tbody.innerHTML = cats.map(c => `
-      <tr>
-        <td>#${c.id}</td>
-        <td><strong>${c.name}</strong></td>
-        <td>${c.description || '—'}</td>
-        <td><span class="badge badge-${c.status}">${c.status}</span></td>
-        <td>
-          <button class="btn-sm btn-blue" onclick="editCategory(${c.id},'${c.name.replace(/'/g, "\\'")}','${(c.description||'').replace(/'/g, "\\'")}')">Edit</button>
-          <button class="btn-sm btn-red" onclick="deleteCategory(${c.id})" style="margin-left:6px">Delete</button>
-        </td>
-      </tr>`).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#d32f2f">Failed to load categories</td></tr>';
-    showToast('Failed to load categories: ' + (e.message || ''), 'error');
-  }
-}
-
-function openCatModal() { currentCatId = null; document.getElementById('cat-modal-title').textContent='Add Category'; document.getElementById('cat-name').value=''; document.getElementById('cat-desc').value=''; document.getElementById('cat-modal').classList.add('show'); }
-function editCategory(id, name, desc) { currentCatId = id; document.getElementById('cat-modal-title').textContent='Edit Category'; document.getElementById('cat-name').value=name; document.getElementById('cat-desc').value=desc; document.getElementById('cat-modal').classList.add('show'); }
-function closeCatModal() { document.getElementById('cat-modal').classList.remove('show'); }
-
-async function saveCategory() {
-  const name = document.getElementById('cat-name').value.trim();
-  const description = document.getElementById('cat-desc').value.trim();
-  if (!name) { showToast('Name is required', 'error'); return; }
-  try {
-    if (currentCatId) await Api.put(`/api/admin/categories/${currentCatId}`, { name, description, status: 'ACTIVE' });
-    else await Api.post('/api/admin/categories', { name, description });
-    showToast('Category saved!', 'success');
-    closeCatModal();
-    loadCategories();
-  } catch(e) { showToast(e.message, 'error'); }
-}
-
-async function deleteCategory(id) {
-  if (!confirm('Delete this category?')) return;
-  try { await Api.delete(`/api/admin/categories/${id}`); showToast('Deleted', 'success'); loadCategories(); }
-  catch(e) { showToast(e.message, 'error'); }
-}
-
-function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
-
-loadDashboardAll();
+// ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => { showTab('dashboard'); });
-
+</script>
 </body>
 </html>
