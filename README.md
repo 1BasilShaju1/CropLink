@@ -169,6 +169,7 @@ run.bat
 
 #### Option C: Running the Compiled Fat JAR
 ```bash
+./mvnw package
 java -jar target/croplink-1.0.0.jar
 ```
 
@@ -411,5 +412,6 @@ Scroll down to the **Environment Variables** section on Render and add:
  #   C r o p  
  #   C r o p  
  #   C r o p  
+ #   C r o p L i n k  
  #   C r o p L i n k  
  
