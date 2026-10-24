@@ -213,8 +213,10 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="/js/api.js"></script>
-<script src="/js/effects.js"></script>
+<script src="/js/api.js">
+
+<script src="/js/effects.js"></script
+
 <script>
 function showToast(msg, type = 'info') {
   if (window.Toast) {
@@ -692,6 +694,7 @@ async function deleteCategory(id) {
 function logout() { Api.clearAuth(); window.location.href = '/pages/login.html'; }
 
 loadDashboardAll();
-</script>
+window.addEventListener('DOMContentLoaded', () => { showTab('dashboard'); });
+
 </body>
 </html>

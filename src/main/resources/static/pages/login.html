@@ -44,6 +44,97 @@
         }
     </style>
 </head>
+<style>
+/* Split-screen container */
+.auth-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  min-height: 500px;
+  margin: 5vh auto;
+  background: #fff;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+}
+/* Panels */
+.auth-form {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+}
+.login-panel {
+  left: 0;
+  width: 50%;
+  padding: 3rem 2rem;
+  background: #f9fafb;
+  box-sizing: border-box;
+}
+.register-panel {
+  right: 0;
+  width: 50%;
+  padding: 3rem 2rem;
+  background: #e8f5e9; /* light green */
+  box-sizing: border-box;
+}
+/* Green side panel */
+.overlay-panel {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: #4caf50;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  transition: transform 0.6s ease-in-out;
+}
+.overlay-left {
+  left: 0;
+  transform: translateX(0);
+}
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+/* When in register mode */
+.auth-container.register-active .login-panel {
+  transform: translateX(-100%);
+}
+.auth-container.register-active .register-panel {
+  transform: translateX(-100%);
+}
+.auth-container.register-active .overlay-left {
+  transform: translateX(100%);
+}
+.auth-container.register-active .overlay-right {
+  transform: translateX(-100%);
+}
+/* Buttons */
+.auth-btn {
+  border:none;
+  padding:.7rem 1.5rem;
+  background:#4caf50;
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:.95rem;
+  margin-top:1rem;
+}
+/* Responsive */
+@media(max-width:768px){
+  .auth-container{flex-direction:column;max-width:100%;height:auto;}
+  .login-panel,.register-panel{position:relative;width:100%;transform:none;}
+  .overlay-panel{position:relative;width:100%;transform:none;}
+  .auth-container.register-active .login-panel,.auth-container.register-active .register-panel{transform:none;}
+}
+</style>
 <body>
 
     <div class="page-transition-overlay"></div>
