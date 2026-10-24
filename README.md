@@ -3,13 +3,13 @@
 > **Project Name:** CropLink  
 > **Project Title:** Farm-Door Delivery Platform (Farm2Door)  
 > **Domain:** Smart Agricultural Direct-to-Consumer (D2C) Marketplace & Order Fulfillment  
-> **Tech Stack:** Java 17, Spring Boot 3, Spring Security, JWT, Spring Data JPA, MySQL, Vanilla HTML5/CSS3/JavaScript  
+> **Tech Stack:** Java 25 LTS, Spring Boot 3, Spring Security, JWT, Spring Data JPA, MySQL, Vanilla HTML5/CSS3/JavaScript  
 > **Deployment Ready:** Local Development & Render Cloud Platform (Docker / Web Service)
 
 ---
 
-![CropLink Platform](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)
-![Java](https://img.shields.io/badge/Java-17%20%7C%2021-orange.svg)
+![CropLink Platform](https://img.shields.io/badge/Spring%20Boot-3.5.16-brightgreen.svg)
+![Java](https://img.shields.io/badge/Java-25%20LTS-orange.svg)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-blue.svg)
 ![Database](https://img.shields.io/badge/Database-MySQL%208.0-blue.svg)
 ![Render](https://img.shields.io/badge/Deploy-Render-black.svg?logo=render)
@@ -137,7 +137,7 @@ The platform includes an automated `DataSeeder` that seeds initial categories, a
 ## 💻 7. Local Setup & Execution Guide
 
 ### Prerequisites
-- **JDK 17 or 21** installed (`java -version`)
+- **JDK 25 LTS** installed and selected in `JAVA_HOME`/`PATH` (`java -version`)
 - **MySQL 8.0+** running locally
 - Git installed
 
@@ -407,3 +407,5 @@ Scroll down to the **Environment Variables** section on Render and add:
 ---
 
 *Developed with ❤️ for Farmers and Direct Doorstep Delivery.*
+#   C r o p L i n k  
+ 
